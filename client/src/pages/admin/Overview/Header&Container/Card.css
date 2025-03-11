@@ -1,0 +1,37 @@
+/* CARD */
+.card-list {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.card {
+    flex:1,;
+    border-radius: 10px;
+    background: #eee;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.card-icon {
+    background-color: #fff;
+    width: 40px;
+    height: 40px;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+}
+.growth {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    gap: 10px;
+}
+
+
+
+
+
