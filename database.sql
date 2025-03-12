@@ -31,7 +31,7 @@ CREATE TABLE `account` (
   PRIMARY KEY (`account_id`),
   KEY `role_id_idx` (`role_id`),
   CONSTRAINT `role_id` FOREIGN KEY (`role_id`) REFERENCES `role` (`role_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -40,7 +40,7 @@ CREATE TABLE `account` (
 
 LOCK TABLES `account` WRITE;
 /*!40000 ALTER TABLE `account` DISABLE KEYS */;
-INSERT INTO `account` VALUES (1,'Admin','admin@gmail.com','$2b$10$aZyoknDc5bk3HAjvjS3aGup1v6Eb0.KpghR9ftQRVil5FzPGBd9wa','1'),(2,'SGU.AnhHuy','nguyenanhhuy20112004@gmail.com','$2b$10$aZyoknDc5bk3HAjvjS3aGup1v6Eb0.KpghR9ftQRVil5FzPGBd9wa','2'),(3,'pham ngoc bang tam','bangtam2004@gmail.com','$2b$10$IEVgZH1GIuWKHmX3uYksY.RjkbgJba.d8GpfOr.wiUIdKHVYvm0i6','2');
+INSERT INTO `account` VALUES (1,'Admin','admin@gmail.com','$2b$10$aZyoknDc5bk3HAjvjS3aGup1v6Eb0.KpghR9ftQRVil5FzPGBd9wa','1'),(2,'SGU.AnhHuy','nguyenanhhuy20112004@gmail.com','$2b$10$aZyoknDc5bk3HAjvjS3aGup1v6Eb0.KpghR9ftQRVil5FzPGBd9wa','2'),(3,'pham ngoc bang tam','bangtam2004@gmail.com','$2b$10$EhJ2a8g4F/v5zYzaXmrK8uk3MaoZuAf5IBemlCjU2iIcgB3/Ad.JO','2'),(4,'Đoàn Thị Hiền','doanhien03@gmail.com','$2b$10$8ZmaxHkvuXIFJXXPvruvzeqHVN6EjNjjTkRX5m.8PSi1Q40blG5dK','2');
 /*!40000 ALTER TABLE `account` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -122,7 +122,7 @@ CREATE TABLE `cart` (
   KEY `product_id_idx` (`product_id`),
   CONSTRAINT `cart_account_id_fkey` FOREIGN KEY (`account_id`) REFERENCES `account` (`account_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `cart_product_id_fkey` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=188 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=335 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -131,7 +131,7 @@ CREATE TABLE `cart` (
 
 LOCK TABLES `cart` WRITE;
 /*!40000 ALTER TABLE `cart` DISABLE KEYS */;
-INSERT INTO `cart` VALUES (186,3,2,4,250),(187,3,3,1,200);
+INSERT INTO `cart` VALUES (202,4,1,1,450),(203,4,2,1,250),(204,4,3,1,200),(332,3,1,1,450),(333,3,2,3,250),(334,3,7,3,350);
 /*!40000 ALTER TABLE `cart` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -231,7 +231,7 @@ CREATE TABLE `goodsreceipt` (
   KEY `goodsreceipt_supplier_id_idx` (`supplier_id`),
   CONSTRAINT `fk_goodsreceipt_account_id` FOREIGN KEY (`account_id`) REFERENCES `account` (`account_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_goodsreceipt_supplier_id` FOREIGN KEY (`supplier_id`) REFERENCES `supplier` (`supplier_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -240,7 +240,7 @@ CREATE TABLE `goodsreceipt` (
 
 LOCK TABLES `goodsreceipt` WRITE;
 /*!40000 ALTER TABLE `goodsreceipt` DISABLE KEYS */;
-INSERT INTO `goodsreceipt` VALUES (1,'nhập hàng Nike','2025-02-17',1000,1,1),(2,'Nhập Converse','2025-02-19',1000,2,1),(3,'Nhập Nike','2025-02-19',1500,1,1),(4,'Nhập Nike','2025-02-20',1000,1,1),(5,'Nhập Nike','2025-02-20',2000,1,1),(6,'Nhập Van','2025-02-20',600,3,1);
+INSERT INTO `goodsreceipt` VALUES (1,'nhập hàng Nike','2025-02-17',1000,1,1),(2,'Nhập Converse','2025-02-19',1000,2,1),(3,'Nhập Nike','2025-02-19',1500,1,1),(4,'Nhập Nike','2025-02-20',1000,1,1),(5,'Nhập Nike','2025-02-20',2000,1,1),(6,'Nhập Van','2025-02-20',600,3,1),(7,'Nhập Jodan','2025-02-21',2700,4,1),(8,'Nhập Nike','2025-02-23',1000,1,1);
 /*!40000 ALTER TABLE `goodsreceipt` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -262,7 +262,7 @@ CREATE TABLE `goodsreceipt_detail` (
   KEY `goodsreceipt_detail_receipt_id_idx` (`receipt_id`),
   CONSTRAINT `fk_goodsreceipt_detail_product_id` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_goodsreceipt_detail_receipt_id` FOREIGN KEY (`receipt_id`) REFERENCES `goodsreceipt` (`receipt_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -271,7 +271,7 @@ CREATE TABLE `goodsreceipt_detail` (
 
 LOCK TABLES `goodsreceipt_detail` WRITE;
 /*!40000 ALTER TABLE `goodsreceipt_detail` DISABLE KEYS */;
-INSERT INTO `goodsreceipt_detail` VALUES (1,2,5,1,200),(2,4,5,2,200),(3,1,5,3,300),(4,2,5,4,200),(5,1,5,5,400),(6,6,2,6,300);
+INSERT INTO `goodsreceipt_detail` VALUES (1,2,5,1,200),(2,4,5,2,200),(3,1,5,3,300),(4,2,5,4,200),(5,1,5,5,400),(6,6,2,6,300),(7,7,9,7,300),(8,3,10,8,100);
 /*!40000 ALTER TABLE `goodsreceipt_detail` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -363,10 +363,11 @@ CREATE TABLE `order` (
   `delivery_status` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
   `payment_status` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
   `stripe_session_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `shipping_address` varchar(155) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`order_id`),
   KEY `account_id_idx` (`account_id`),
   CONSTRAINT `order_account_id` FOREIGN KEY (`account_id`) REFERENCES `account` (`account_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -375,7 +376,7 @@ CREATE TABLE `order` (
 
 LOCK TABLES `order` WRITE;
 /*!40000 ALTER TABLE `order` DISABLE KEYS */;
-INSERT INTO `order` VALUES (4,2,'2024-12-14 19:16:44.964',1300,'delivered','completed','cs_test_b1rwm7g19Se3pv22gUEEMCgfEfH0rCR2uM5dbV7p529nUHrrP6HAQG7OZ4'),(5,2,'2024-12-14 19:31:11.366',1300,'delivered','completed','cs_test_b1oSZurN2CaflwXPsn3w4HcVhIglV3DtveAWIcCsJXpvs3cGZ7vqG0TgMi'),(6,2,'2024-12-15 07:05:19.535',900,'pending','completed','cs_test_a1Dt9UTEpSoPbBHR2cXGoIQZoIHH9sqIzbgZnUHcJRxidMa55IwCukzzQ8'),(7,2,'2024-12-15 07:06:43.540',900,'pending','completed','cs_test_a1ZvKEYrVxJo8Yo89HO8phk8lxkHCRVZxj2tlSmc8Bv6I55oBxxJDdZ8xN'),(8,2,'2024-12-15 07:08:08.477',450,'pending','completed','cs_test_a1MA6DbJlRnf7oUErcxEWUKZCitPjFbcHfYJ2MK40ugONoQ4sFEmglcDYf'),(9,2,'2024-12-15 07:24:58.936',700,'pending','completed','cs_test_b1m8Z4rgiJcgyD8w2nf6HvbBEpOyhY0K4pJg383DqzWCLTnqwoU5wIi82z'),(10,2,'2024-12-15 07:38:46.529',700,'pending','completed','cs_test_b1soLUFWyyhRGLNM660HeqI31IWBRrgM0PdcC62MiuJTg6DXaKbxzLee6j'),(11,2,'2024-12-15 07:48:10.155',700,'pending','completed','cs_test_b1ck46xubXMjDZaZjJDalH91x5bWughsiJi3HevPaQMTR2lglVIq4zA6ky'),(12,2,'2024-12-15 07:57:53.102',700,'pending','completed','cs_test_b1E6Pc6k4CdY6Vy5GWi3XndlbbJgPog6W9GsjghY5AzBzdqpZsgVk5HsyZ'),(13,2,'2024-12-15 08:01:33.545',1800,'pending','completed','cs_test_a1AEr84vCIWRM9IUZfYCCp5izq9IPLuZSsXhl1eS8W6jn185ersVQrBlKS'),(14,2,'2024-12-15 08:04:12.461',1150,'pending','completed','cs_test_b1KynC4dYYXnjcpHIZtNcYFR0Fkoub3FToWAMgfsjXwODY6l7ljCb1zMsl'),(15,2,'2024-12-21 18:33:59.149',2750,'pending','completed','cs_test_b12KivEVB1vJtttOaxGDIlv0Q1DdocNz9ooMuA8AL0iY7kMdscIuq2wzNj'),(16,3,'2025-02-13 12:00:41.128',1400,'pending','completed','cs_test_b1OkrjGrAgFk0oxF7O75piI5NYUtkeKm5k14ebhnUlDw4TxnescAY37ulp'),(17,3,'2025-02-13 12:07:16.599',900,'pending','completed','cs_test_b1Af9AQsXRvZpWgxuxe1OuQNYAyTekOPLDnDhmQ4cvMvr6C85xSvPktXmZ'),(18,3,'2025-02-17 06:29:31.437',2250,'pending','completed','cs_test_a1FHfQzQVszLndTif52Mshr7SbbaJkJ9SW32U30hx2tNRaCZSDIvNoQ4Pu'),(19,3,'2025-02-20 06:00:32.964',2250,'pending','completed','cs_test_a1Gjo6KhzGaZzubBjdNeAKZhoCKNREEUvIaFSO8nPSVZI4pkyyzKrAKlHf');
+INSERT INTO `order` VALUES (4,2,'2024-12-14 19:16:44.964',1300,'delivered','completed','cs_test_b1rwm7g19Se3pv22gUEEMCgfEfH0rCR2uM5dbV7p529nUHrrP6HAQG7OZ4','123 Đường Lê Lợi, Tòa nhà XYZ, Hà Nội, Hoàn Kiếm 100000, VN'),(5,2,'2024-12-14 19:31:11.366',1300,'delivered','completed','cs_test_b1oSZurN2CaflwXPsn3w4HcVhIglV3DtveAWIcCsJXpvs3cGZ7vqG0TgMi','123 Đường Lê Lợi, Tòa nhà XYZ, Hà Nội, Hoàn Kiếm 100000, VN'),(6,2,'2024-12-15 07:05:19.535',900,'delivered','completed','cs_test_a1Dt9UTEpSoPbBHR2cXGoIQZoIHH9sqIzbgZnUHcJRxidMa55IwCukzzQ8','123 Đường Lê Lợi, Tòa nhà XYZ, Hà Nội, Hoàn Kiếm 100000, VN'),(7,2,'2024-12-15 07:06:43.540',900,'delivered','completed','cs_test_a1ZvKEYrVxJo8Yo89HO8phk8lxkHCRVZxj2tlSmc8Bv6I55oBxxJDdZ8xN','123 Đường Lê Lợi, Tòa nhà XYZ, Hà Nội, Hoàn Kiếm 100000, VN'),(8,2,'2024-12-15 07:08:08.477',450,'delivered','completed','cs_test_a1MA6DbJlRnf7oUErcxEWUKZCitPjFbcHfYJ2MK40ugONoQ4sFEmglcDYf','123 Đường Lê Lợi, Tòa nhà XYZ, Hà Nội, Hoàn Kiếm 100000, VN'),(9,2,'2024-12-15 07:24:58.936',700,'delivered','completed','cs_test_b1m8Z4rgiJcgyD8w2nf6HvbBEpOyhY0K4pJg383DqzWCLTnqwoU5wIi82z','123 Đường Lê Lợi, Tòa nhà XYZ, Hà Nội, Hoàn Kiếm 100000, VN'),(10,2,'2024-12-15 07:38:46.529',700,'delivered','completed','cs_test_b1soLUFWyyhRGLNM660HeqI31IWBRrgM0PdcC62MiuJTg6DXaKbxzLee6j','123 Đường Lê Lợi, Tòa nhà XYZ, Hà Nội, Hoàn Kiếm 100000, VN'),(11,2,'2024-12-15 07:48:10.155',700,'delivered','completed','cs_test_b1ck46xubXMjDZaZjJDalH91x5bWughsiJi3HevPaQMTR2lglVIq4zA6ky','123 Đường Lê Lợi, Tòa nhà XYZ, Hà Nội, Hoàn Kiếm 100000, VN'),(12,2,'2024-12-15 07:57:53.102',700,'delivered','completed','cs_test_b1E6Pc6k4CdY6Vy5GWi3XndlbbJgPog6W9GsjghY5AzBzdqpZsgVk5HsyZ','123 Đường Lê Lợi, Tòa nhà XYZ, Hà Nội, Hoàn Kiếm 100000, VN'),(13,2,'2024-12-15 08:01:33.545',1800,'delivered','completed','cs_test_a1AEr84vCIWRM9IUZfYCCp5izq9IPLuZSsXhl1eS8W6jn185ersVQrBlKS','123 Đường Lê Lợi, Tòa nhà XYZ, Hà Nội, Hoàn Kiếm 100000, VN'),(14,2,'2024-12-15 08:04:12.461',1150,'pending','completed','cs_test_b1KynC4dYYXnjcpHIZtNcYFR0Fkoub3FToWAMgfsjXwODY6l7ljCb1zMsl','123 Đường Lê Lợi, Tòa nhà XYZ, Hà Nội, Hoàn Kiếm 100000, VN'),(15,2,'2024-12-21 18:33:59.149',2750,'pending','completed','cs_test_b12KivEVB1vJtttOaxGDIlv0Q1DdocNz9ooMuA8AL0iY7kMdscIuq2wzNj','123 Đường Lê Lợi, Tòa nhà XYZ, Hà Nội, Hoàn Kiếm 100000, VN'),(16,3,'2025-02-13 12:00:41.128',1400,'pending','completed','cs_test_b1OkrjGrAgFk0oxF7O75piI5NYUtkeKm5k14ebhnUlDw4TxnescAY37ulp','123 Đường Lê Lợi, Tòa nhà XYZ, Hà Nội, Hoàn Kiếm 100000, VN'),(17,3,'2025-02-13 12:07:16.599',900,'delivered','completed','cs_test_b1Af9AQsXRvZpWgxuxe1OuQNYAyTekOPLDnDhmQ4cvMvr6C85xSvPktXmZ','123 Đường Lê Lợi, Tòa nhà XYZ, Hà Nội, Hoàn Kiếm 100000, VN'),(18,3,'2025-02-17 06:29:31.437',2250,'delivered','completed','cs_test_a1FHfQzQVszLndTif52Mshr7SbbaJkJ9SW32U30hx2tNRaCZSDIvNoQ4Pu','123 Đường Lê Lợi, Tòa nhà XYZ, Hà Nội, Hoàn Kiếm 100000, VN'),(19,3,'2025-02-20 06:00:32.964',2250,'delivered','completed','cs_test_a1Gjo6KhzGaZzubBjdNeAKZhoCKNREEUvIaFSO8nPSVZI4pkyyzKrAKlHf','123 Đường Lê Lợi, Tòa nhà XYZ, Hà Nội, Hoàn Kiếm 100000, VN'),(20,3,'2025-02-23 03:51:24.316',1600,'delivered','completed','cs_test_a1X4slgpiZwq8V8njIIm9dPLKIfLw6VquvQ3JmoZE8xbkeiGjkVHcO7ems','123 Đường Lê Lợi, Tòa nhà XYZ, Hà Nội, Hoàn Kiếm 100000, VN'),(21,4,'2025-02-23 15:14:32.584',900,'pending','completed','cs_test_b19bCBYm0wBvPeIlFk0luCZvDRDz7KViIOuw8EaJAxzzYzbn1twclbAbR9','123 Đường Lê Lợi, Tòa nhà XYZ, Hà Nội, Hoàn Kiếm 100000, VN');
 /*!40000 ALTER TABLE `order` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -397,7 +398,7 @@ CREATE TABLE `order_item` (
   KEY `order_item_product_id_idx` (`product_id`),
   CONSTRAINT `order_item_product_id` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `order_order_id` FOREIGN KEY (`order_id`) REFERENCES `order` (`order_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -406,7 +407,7 @@ CREATE TABLE `order_item` (
 
 LOCK TABLES `order_item` WRITE;
 /*!40000 ALTER TABLE `order_item` DISABLE KEYS */;
-INSERT INTO `order_item` VALUES (5,4,1,1,450),(6,4,2,1,250),(7,4,3,3,600),(8,5,1,1,450),(9,5,2,1,250),(10,5,3,3,600),(11,6,1,2,900),(12,7,1,2,900),(13,8,1,1,450),(14,9,1,1,450),(15,9,2,1,250),(16,10,1,1,450),(17,10,2,1,250),(18,11,1,1,450),(19,11,2,1,250),(20,12,1,1,450),(21,12,2,1,250),(22,13,1,4,1800),(23,14,1,1,450),(24,14,2,1,250),(25,14,3,1,200),(26,14,4,1,250),(27,15,1,4,1800),(28,15,2,3,750),(29,15,3,1,200),(30,16,1,2,900),(31,16,2,2,500),(32,17,1,1,450),(33,17,2,1,250),(34,17,3,1,200),(35,18,1,5,2250),(36,19,1,5,2250);
+INSERT INTO `order_item` VALUES (5,4,1,1,450),(6,4,2,1,250),(7,4,3,3,600),(8,5,1,1,450),(9,5,2,1,250),(10,5,3,3,600),(11,6,1,2,900),(12,7,1,2,900),(13,8,1,1,450),(14,9,1,1,450),(15,9,2,1,250),(16,10,1,1,450),(17,10,2,1,250),(18,11,1,1,450),(19,11,2,1,250),(20,12,1,1,450),(21,12,2,1,250),(22,13,1,4,1800),(23,14,1,1,450),(24,14,2,1,250),(25,14,3,1,200),(26,14,4,1,250),(27,15,1,4,1800),(28,15,2,3,750),(29,15,3,1,200),(30,16,1,2,900),(31,16,2,2,500),(32,17,1,1,450),(33,17,2,1,250),(34,17,3,1,200),(35,18,1,5,2250),(36,19,1,5,2250),(37,20,6,5,1600),(38,21,1,1,450),(39,21,2,1,250),(40,21,3,1,200);
 /*!40000 ALTER TABLE `order_item` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -445,7 +446,7 @@ CREATE TABLE `product` (
 
 LOCK TABLES `product` WRITE;
 /*!40000 ALTER TABLE `product` DISABLE KEYS */;
-INSERT INTO `product` VALUES (1,'C1','B1','Nike J97 Drop Tag',450,'Vietnam',2018,0,'/img/1739446095620_nike-react-element.png',20,1),(2,'C2','B2','Nike Adapt BB H20',250,'Vietnam',2024,15,'/img/1739446126705_nike-adapt-bb.png',20,1),(3,'C3','B3','Nike Air Max 97',200,'Vietnam',2024,20,'/img/1739446151585_nike-air-max-97.png',15,1),(4,'C2','B1','Converse Chuck TayLor',250,'Vietnam',2024,10,'/img/1739446173887_converse-chuck-taylor.png',10,2),(5,'C2','B2','Nike FlyKnit',200,'Vietnam',2024,15,'/img/1739446189918_nike-flyknit.png',25,1),(6,'C2','B2','Van Black Black',320,'Vietnam',2024,5,'/img/1739446210324_vans-black-black.png',10,3);
+INSERT INTO `product` VALUES (1,'C1','B1','Nike J97 Drop Tag',450,'Vietnam',2018,0,'/img/1739446095620_nike-react-element.png',19,1),(2,'C2','B2','Nike Adapt BB H20',250,'Vietnam',2024,15,'/img/1739446126705_nike-adapt-bb.png',19,1),(3,'C3','B3','Nike Air Max 97',200,'Vietnam',2024,20,'/img/1739446151585_nike-air-max-97.png',24,1),(4,'C2','B1','Converse Chuck TayLor',250,'Vietnam',2024,10,'/img/1739446173887_converse-chuck-taylor.png',10,2),(5,'C2','B2','Nike FlyKnit',200,'Vietnam',2024,15,'/img/1739446189918_nike-flyknit.png',25,1),(6,'C2','B2','Van Black Black',320,'Vietnam',2024,5,'/img/1739446210324_vans-black-black.png',5,3),(7,'C2','B2','Jodan DelShip',350,'Vietnam',2025,0,'/img/1740151635944_nike-air-max-97.png',10,3);
 /*!40000 ALTER TABLE `product` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -604,7 +605,7 @@ CREATE TABLE `supplier` (
 
 LOCK TABLES `supplier` WRITE;
 /*!40000 ALTER TABLE `supplier` DISABLE KEYS */;
-INSERT INTO `supplier` VALUES (1,'Nike','TPHCM','0346674072'),(2,'Converse','TPHCM','0911461151'),(3,'Van','Hanoi','0836142051');
+INSERT INTO `supplier` VALUES (1,'Nike','TPHCM','0346674072'),(2,'Converse','TPHCM','0911461151'),(3,'Van','Hanoi','0836142051'),(4,'Jodan','Da nang','0911461152');
 /*!40000 ALTER TABLE `supplier` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -647,4 +648,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-02-21 15:52:37
+-- Dump completed on 2025-03-12 11:12:09

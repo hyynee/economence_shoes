@@ -7,3 +7,7 @@
 # Github: https://github.com/hyynee/economence_shoes.git
 
 # Sai Gon University
+
+# FE: React JS, TaiLwind CSS, Redux
+
+# BE: Node JS, Prisma, My Sql
