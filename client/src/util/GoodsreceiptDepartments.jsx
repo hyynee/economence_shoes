@@ -56,10 +56,10 @@ export const GoodsButton = ({ row }) => {
                 className="px-3 py-1 bg-yellow-500 text-white font-bold rounded"
                 onClick={handleViewModalOpen}>View Details
             </button>
-            <button
+            {/* <button
                 className="px-3 py-1 bg-yellow-500 text-white font-bold rounded"
                 onClick={handleEditModalOpen}>Edit
-            </button>
+            </button> */}
             <ViewDetail
                 isOpen={isViewModalOpen}
                 onClose={handleCloseModal}

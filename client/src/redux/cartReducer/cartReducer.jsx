@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { toast } from 'react-toastify';
 import { history } from '../..';
-import { getStorageJSON, http } from '../../util/config';
+import { getStorageJSON, http, USERLOGIN } from '../../util/config';
 
 const initialState = {
     cartItems: [],
@@ -47,7 +47,8 @@ export default cartReducer.reducer
 export const getItemsActionApi = () => {
     return async (dispatch) => {
         try {
-            const token = getStorageJSON('token');
+            const token = getStorageJSON(USERLOGIN)?.token;
+            console.log("token", token)
             if (!token) {
                 toast.error("Please log in to see items in the cart.");
                 return;

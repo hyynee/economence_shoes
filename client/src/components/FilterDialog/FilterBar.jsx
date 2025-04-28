@@ -1,7 +1,7 @@
 import { ChevronDownIcon, FunnelIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 
-const FilterBar = ({ selectedFilter, setFilterKey, setSelectedFilter, setOpen }) => {
+const FilterBar = ({ selectedFilter, setFilterKey, setSelectedFilter, setOpen, resetFilters }) => {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const [showDropdown, setShowDropdown] = useState(false);
 
@@ -15,8 +15,13 @@ const FilterBar = ({ selectedFilter, setFilterKey, setSelectedFilter, setOpen })
 
     const brands = ["*", "Nike", "Converse", "Van", "Adidas", "Jodan"];
     const handleFilterClick = (brand) => {
-        setFilterKey(brand);
-        setSelectedFilter(brand);
+        if (brand === "*") {
+            resetFilters();
+            setSelectedFilter("*");
+        } else {
+            setFilterKey(brand);
+            setSelectedFilter(brand);
+        }
         setShowDropdown(false);
     };
     return (

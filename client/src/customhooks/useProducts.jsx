@@ -7,23 +7,33 @@ const useProducts = () => {
     const dispatch = useDispatch();
     const { arrProd } = useSelector(state => state.productsReducer);
 
-    const [filterKey, setFilterKey] = useState('*');
+    const [filterKey, setFilterKey] = useState('');
     const [selectedFilter, setSelectedFilter] = useState('*');
-    const [open, setOpen] = useState(false);
+    const [selectedBrands, setSelectedBrands] = useState([]);
+    const [minPrice, setMinPrice] = useState(0);
+    const [maxPrice, setMaxPrice] = useState(99999);
     const [sortOrder, setSortOrder] = useState('');
+    const [open, setOpen] = useState(false);
 
     useEffect(() => {
         dispatch(getAllProdActionApi());
     }, [dispatch]);
 
-    // Lọc sản phẩm theo tên
-    const filteredProducts = useMemo(() => {
-        return Array.isArray(arrProd)
-            ? (filterKey === '*' ? arrProd : arrProd.filter(item => item.product_name.toLowerCase().includes(filterKey.toLowerCase())))
-            : [];
-    }, [arrProd, filterKey]);
+    const brandsList = ["Nike", "Converse", "Van", "Adidas", "Jodan"];
 
-    // Sắp xếp sản phẩm theo giá
+    // Lọc nâng cao
+    const filteredProducts = useMemo(() => {
+        if (!Array.isArray(arrProd)) return [];
+        return arrProd.filter(item => {
+            const matchesName = filterKey === '' || filterKey === '*' || item.product_name.toLowerCase().includes(filterKey.toLowerCase());
+            const matchesBrand = selectedBrands.length === 0 ||
+                selectedBrands.some(brand => item.product_name.toLowerCase().includes(brand.toLowerCase()));
+            const matchesPrice = item.output_price >= minPrice && item.output_price <= maxPrice;
+            return matchesName && matchesBrand && matchesPrice;
+        });
+    }, [arrProd, filterKey, selectedBrands, minPrice, maxPrice]);
+
+    // Sắp xếp
     const sortedProducts = useMemo(() => {
         return [...filteredProducts].sort((a, b) =>
             sortOrder === 'asc' ? a.output_price - b.output_price :
@@ -34,17 +44,31 @@ const useProducts = () => {
     const handleAddToCart = (product_id) => {
         dispatch(addProductToCartActionApi(product_id, 1));
     };
-
+    const resetFilters = () => {
+        setFilterKey("");
+        setSelectedBrands([]);
+        setMinPrice(0);
+        setMaxPrice(99999);
+        setSortOrder("");
+    };
     return {
         sortedProducts,
         filterKey,
-        selectedFilter,
-        open,
+        selectedBrands,
+        minPrice,
+        maxPrice,
         sortOrder,
-        setFilterKey,
+        selectedFilter,
         setSelectedFilter,
-        setOpen,
+        open,
+        resetFilters,
+        brandsList,
+        setFilterKey,
+        setSelectedBrands,
+        setMinPrice,
+        setMaxPrice,
         setSortOrder,
+        setOpen,
         handleAddToCart
     };
 };

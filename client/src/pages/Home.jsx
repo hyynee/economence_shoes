@@ -11,8 +11,13 @@ const Home = () => {
     selectedFilter,
     open,
     setFilterKey,
+    setSelectedBrands,
     setSelectedFilter,
     setOpen,
+    brandsList,
+    resetFilters,
+    setMinPrice,
+    setMaxPrice,
     setSortOrder,
     handleAddToCart
   } = useProducts();
@@ -24,10 +29,17 @@ const Home = () => {
       </div>
       { /*  hàm lọc sp theo tên */}
       <div className="container mt-6">
-        <FilterBar selectedFilter={selectedFilter} setFilterKey={setFilterKey} setSelectedFilter={setSelectedFilter} setOpen={setOpen} />
+        <FilterBar
+          selectedFilter={selectedFilter}
+          setFilterKey={setFilterKey}
+          setSelectedFilter={setSelectedFilter}
+          setOpen={setOpen}
+          resetFilters={resetFilters}
+        />
       </div>
       {/* hàm filter modal*/}
-      <FilterDialog open={open} setOpen={setOpen} setFilterKey={setFilterKey} setSortOrder={setSortOrder} />
+      <FilterDialog open={open} setOpen={setOpen} setFilterKey={setFilterKey} setSortOrder={setSortOrder} brandsList={brandsList} setSelectedBrands={setSelectedBrands} setMinPrice={setMinPrice}
+        setMaxPrice={setMaxPrice} />
       {/* Product List*/}
       <div className='container'>
         <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8">

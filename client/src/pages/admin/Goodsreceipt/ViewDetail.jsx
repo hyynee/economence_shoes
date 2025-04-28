@@ -4,7 +4,7 @@ import React from 'react';
 
 const ViewDetail = ({ isOpen, onClose, receipt }) => {
     if (!isOpen) return null;
-
+    console.log("ViewDetail", receipt.goodsreceipt_detail);
     return (
         <Dialog open={isOpen} onClose={onClose} className="relative z-10">
             <DialogBackdrop className="fixed inset-0 bg-gray-500/75" />
@@ -73,10 +73,12 @@ const ViewDetail = ({ isOpen, onClose, receipt }) => {
                                     </table>
                                 </div>
                                 <div className='mt-2 mx-auto'>
-                                    <img src="https://i.pravatar.cc?u=1" alt="..." className='w-80 h-full' />
+                                    {receipt.goodsreceipt_detail.map((detail, index) => (
+                                        <img key={index} src={`http://localhost:8080/public${detail.product.image_path}`} alt="..." className="aspect-square w-80 h-full mt-4 rounded-md bg-[#4c1d95] group-hover:opacity-75" />
+                                    ))}
                                 </div>
                                 {/* Nút đóng */}
-                                <div className="flex justify-end mt-4">
+                                <div className="flex justify-end mt-8">
                                     <button
                                         className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
                                         onClick={onClose}

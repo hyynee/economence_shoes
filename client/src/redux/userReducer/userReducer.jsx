@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { jwtDecode } from "jwt-decode";
 import { toast } from 'react-toastify';
 import { history } from '../..';
-import { getStorageJSON, http, saveStorageJSON, USERLOGIN } from '../../util/config';
+import { getStorageJSON, http, USERLOGIN } from '../../util/config';
 
 const initialStateUserLogin = () => {
     let userLoginInit = {
@@ -77,7 +77,8 @@ export const loginActionApi = (userLogin) => {
                 const { token, email } = result.data;
                 const { role_id } = jwtDecode(token).data;
                 const userLoginData = { email, token, role_id };
-                saveStorageJSON(USERLOGIN, userLoginData);
+                localStorage.setItem('userLogin', JSON.stringify(userLoginData));
+                // saveStorageJSON(USERLOGIN, userLoginData);
                 dispatch(loginAction(userLoginData));
                 history.push(role_id === '1' ? '/admin' : '/');
                 toast.success("Login successful");
