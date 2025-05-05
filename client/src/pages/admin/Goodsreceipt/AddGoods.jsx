@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import * as Yup from 'yup';
 import useAdminAddGoods from '../../../customhooks/AdminHooks/useAdminAddGoods';
 import { AdminAddProdActionApi } from '../../../redux/productReducer/productsReducer';
+import { http } from '../../../util/config';
 import AddProductModal from '../Products/AddProductModal';
 
 const AddGoods = ({ isOpen, onClose, onAdd }) => {
@@ -11,21 +12,17 @@ const AddGoods = ({ isOpen, onClose, onAdd }) => {
     const { arrSupplier, userProfile, arrProd } = useAdminAddGoods();
     const [showAddProductModal, setShowAddProductModal] = useState(false);
     const [products, setProducts] = useState([]);
-    const [lastAddedProduct, setLastAddedProduct] = useState(null);
+    const [tempProducts, setTempProducts] = useState([]);
 
     useEffect(() => {
         if (arrProd && arrProd.length > 0) {
-            setProducts([...arrProd]);
-
-            if (lastAddedProduct && lastAddedProduct.product_id) {
-                const newAddedProduct = arrProd.find(p => p.product_id === lastAddedProduct.product_id);
-                if (newAddedProduct) {
-                    addProductToReceipt(newAddedProduct);
-                    setLastAddedProduct(null);
-                }
+            const uniqueIds = new Set(arrProd.map(p => p.product_id));
+            if (uniqueIds.size !== arrProd.length) {
+                console.warn("Cảnh báo: arrProd chứa product_id trùng lặp!");
             }
+            setProducts([...arrProd]);
         }
-    }, [arrProd, lastAddedProduct]);
+    }, [arrProd]);
 
     useEffect(() => {
         if (userProfile?.data?.full_name) {
@@ -42,9 +39,9 @@ const AddGoods = ({ isOpen, onClose, onAdd }) => {
             goodsreceipt_detail: [
                 {
                     product_id: '',
-                    quantity: 0,
+                    quantity: 1,
                     input_price: 0,
-                }
+                },
             ],
             total_price: 0,
         },
@@ -52,10 +49,8 @@ const AddGoods = ({ isOpen, onClose, onAdd }) => {
             goodsreceipt_name: Yup.string()
                 .required('Tên phiếu nhập hàng là bắt buộc')
                 .min(3, 'Tên phải có ít nhất 3 ký tự'),
-            date: Yup.date()
-                .required('Ngày nhập là bắt buộc'),
-            supplier_id: Yup.number()
-                .required('Nhà cung cấp là bắt buộc'),
+            date: Yup.date().required('Ngày nhập là bắt buộc'),
+            supplier_id: Yup.number().required('Nhà cung cấp là bắt buộc'),
             goodsreceipt_detail: Yup.array().of(
                 Yup.object({
                     product_id: Yup.number().required('Sản phẩm là bắt buộc'),
@@ -66,28 +61,69 @@ const AddGoods = ({ isOpen, onClose, onAdd }) => {
                         .required('Giá nhập là bắt buộc')
                         .min(1, 'Giá nhập phải lớn hơn 0'),
                 })
-            )
+            ),
         }),
         onSubmit: async (values) => {
-            const newReceipt = {
-                goodsreceipt_name: values.goodsreceipt_name,
-                date: new Date(values.date),
-                total_price: values.total_price,
-                supplier_id: Number(values.supplier_id),
-                account_id: userProfile?.data?.account_id || 0,
-                goodsreceipt_detail: values.goodsreceipt_detail.map(detail => ({
-                    product_id: Number(detail.product_id),
-                    quantity: Number(detail.quantity),
-                    input_price: Number(detail.input_price)
-                }))
-            };
-            await onAdd(newReceipt);
-            onClose();
-        }
+            if (Object.keys(formik.errors).length > 0) {
+                alert("Vui lòng sửa các lỗi trong form trước khi lưu!");
+                return;
+            }
+            try {
+                const savedProducts = [];
+                for (const product of tempProducts) {
+                    const image_path = await http.postForm(`products/upLoadImage`, { image: product.image_file });
+                    const fullPath = image_path.data.path;
+                    const imagePath = fullPath.split('public')[1].replace(/\\/g, '/').replace(/^\+/, '');
+                    const productPayload = {
+                        product_id: product.product_id,
+                        product_name: product.product_name,
+                        output_price: product.output_price,
+                        input_price: product.input_price,
+                        image_path: imagePath,
+                        category_id: product.category_id,
+                        brand_id: product.brand_id,
+                        country: product.country,
+                        year_of_product: product.year_of_product,
+                        discount_percent: product.discount_percent,
+                    };
+                    const result = await dispatch(AdminAddProdActionApi(productPayload));
+                    if (result?.product_id) {
+                        savedProducts.push(result);
+                    } else {
+                        throw new Error(`Lưu sản phẩm ${product.product_id} thất bại`);
+                    }
+                }
+                // Cập nhật products state
+                setProducts(prev => [
+                    ...prev.filter(p => !savedProducts.some(sp => sp.product_id === p.product_id)),
+                    ...savedProducts,
+                ]);
+                // Tạo và gửi phiếu nhập hàng
+                const newReceipt = {
+                    goodsreceipt_name: values.goodsreceipt_name,
+                    date: new Date(values.date),
+                    total_price: values.total_price,
+                    supplier_id: Number(values.supplier_id),
+                    account_id: userProfile?.data?.account_id || 1,
+                    goodsreceipt_detail: values.goodsreceipt_detail.map(detail => ({
+                        product_id: Number(detail.product_id),
+                        quantity: Number(detail.quantity),
+                        input_price: Number(detail.input_price),
+                    })),
+                };
+                const response = await onAdd(newReceipt);
+                setTempProducts([]);
+                onClose();
+            } catch (error) {
+                console.error("Lỗi khi lưu phiếu nhập hàng:", error);
+                alert("Lưu phiếu nhập hàng thất bại: " + error.message);
+            }
+        },
     });
 
     const handleClose = () => {
         formik.resetForm();
+        setTempProducts([]);
         onClose();
     };
 
@@ -99,39 +135,58 @@ const AddGoods = ({ isOpen, onClose, onAdd }) => {
     }, [formik.values.goodsreceipt_detail]);
 
     const addProductToReceipt = (product) => {
-        if (formik.values.goodsreceipt_detail.length === 1 &&
-            !formik.values.goodsreceipt_detail[0].product_id) {
+        const inputPrice = product.input_price > 0 ? product.input_price : 1;
+        const quantity = product.quantity > 0 ? product.quantity : 1;
+        const existingDetailIndex = formik.values.goodsreceipt_detail.findIndex(
+            detail => detail.product_id === product.product_id
+        );
+        if (existingDetailIndex !== -1) {
+            const currentQuantity = formik.values.goodsreceipt_detail[existingDetailIndex].quantity;
+            formik.setFieldValue(
+                `goodsreceipt_detail.${existingDetailIndex}.quantity`,
+                currentQuantity + quantity
+            );
+        } else if (
+            formik.values.goodsreceipt_detail.length === 1 &&
+            !formik.values.goodsreceipt_detail[0].product_id
+        ) {
             formik.setFieldValue('goodsreceipt_detail.0.product_id', product.product_id);
-            formik.setFieldValue('goodsreceipt_detail.0.quantity', 1);
-            formik.setFieldValue('goodsreceipt_detail.0.input_price', product.input_price || 0);
+            formik.setFieldValue('goodsreceipt_detail.0.quantity', quantity);
+            formik.setFieldValue('goodsreceipt_detail.0.input_price', inputPrice);
         } else {
             formik.setFieldValue('goodsreceipt_detail', [
                 ...formik.values.goodsreceipt_detail,
                 {
                     product_id: product.product_id,
-                    quantity: 1,
-                    input_price: product.input_price || 0
-                }
+                    quantity: quantity,
+                    input_price: inputPrice,
+                },
             ]);
         }
+        setTimeout(() => {
+            const detailElement = document.querySelector(
+                `.border.rounded-lg.p-3.bg-gray-50:nth-child(${formik.values.goodsreceipt_detail.length})`
+            );
+            if (detailElement) {
+                detailElement.scrollIntoView({ behavior: 'smooth' });
+            }
+        }, 0);
     };
 
     const handleAddProduct = async (newProduct) => {
         try {
-            const result = await dispatch(AdminAddProdActionApi(newProduct));
-            if (result.payload && result.payload.product_id) {
-                setLastAddedProduct(result.payload);
-            }
+            setTempProducts(prev => [...prev.filter(p => p.product_id !== newProduct.product_id), newProduct]);
+            addProductToReceipt(newProduct);
             setShowAddProductModal(false);
         } catch (error) {
-            console.error("Lỗi khi thêm sản phẩm:", error);
+            console.error("Lỗi khi thêm sản phẩm tạm thời:", error);
         }
     };
 
     const addDetailRow = () => {
         formik.setFieldValue('goodsreceipt_detail', [
             ...formik.values.goodsreceipt_detail,
-            { product_id: '', quantity: 0, input_price: 0 }
+            { product_id: '', quantity: 1, input_price: 0 },
         ]);
     };
 
@@ -148,16 +203,12 @@ const AddGoods = ({ isOpen, onClose, onAdd }) => {
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4 overflow-y-auto">
             <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl max-h-[90vh] flex flex-col">
-                {/* Header */}
                 <div className="p-4 border-b sticky top-0 bg-white z-10">
                     <h2 className="text-xl font-bold text-center">Add Goods Receipt</h2>
                 </div>
-
-                {/* Scrollable Content */}
                 <div className="overflow-y-auto flex-1 p-4">
                     <form onSubmit={formik.handleSubmit}>
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            {/* Left Column - Basic Info */}
                             <div className="space-y-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Goods Receipt Name</label>
@@ -173,7 +224,6 @@ const AddGoods = ({ isOpen, onClose, onAdd }) => {
                                         <p className="mt-1 text-sm text-red-600">{formik.errors.goodsreceipt_name}</p>
                                     )}
                                 </div>
-
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
                                     <input
@@ -188,7 +238,6 @@ const AddGoods = ({ isOpen, onClose, onAdd }) => {
                                         <p className="mt-1 text-sm text-red-600">{formik.errors.date}</p>
                                     )}
                                 </div>
-
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Supplier</label>
                                     <select
@@ -199,17 +248,17 @@ const AddGoods = ({ isOpen, onClose, onAdd }) => {
                                         className="w-full px-3 py-2 border rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                                     >
                                         <option value="">-- Chọn Nhà Cung Cấp --</option>
-                                        {arrSupplier.map((supplier) => (
-                                            <option key={supplier.supplier_id} value={supplier.supplier_id}>
-                                                {supplier.supplier_name}
-                                            </option>
-                                        ))}
+                                        {arrSupplier &&
+                                            arrSupplier.map((supplier) => (
+                                                <option key={supplier.supplier_id} value={supplier.supplier_id}>
+                                                    {supplier.supplier_name}
+                                                </option>
+                                            ))}
                                     </select>
                                     {formik.touched.supplier_id && formik.errors.supplier_id && (
                                         <p className="mt-1 text-sm text-red-600">{formik.errors.supplier_id}</p>
                                     )}
                                 </div>
-
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Account Name</label>
                                     <input
@@ -221,8 +270,6 @@ const AddGoods = ({ isOpen, onClose, onAdd }) => {
                                     />
                                 </div>
                             </div>
-
-                            {/* Right Column - Product Details */}
                             <div className="space-y-4">
                                 <div className="flex justify-between items-center">
                                     <h3 className="text-lg font-semibold">Goods Receipt Details</h3>
@@ -243,83 +290,96 @@ const AddGoods = ({ isOpen, onClose, onAdd }) => {
                                         </button>
                                     </div>
                                 </div>
-
                                 <div className="space-y-3 max-h-[300px] overflow-y-auto p-1">
-                                    {formik.values.goodsreceipt_detail.map((detail, index) => (
-                                        <div key={index} className="border rounded-lg p-3 bg-gray-50">
-                                            <div className="flex justify-between items-center mb-2">
-                                                <h4 className="font-medium text-sm">Chi tiết #{index + 1}</h4>
-                                                {formik.values.goodsreceipt_detail.length > 1 && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => removeDetailRow(index)}
-                                                        className="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 transition-colors"
-                                                    >
-                                                        Xóa
-                                                    </button>
-                                                )}
+                                    {formik.values.goodsreceipt_detail.map((detail, index) => {
+                                        console.log(`Detail #${index + 1} before render:`, detail);
+                                        return (
+                                            <div key={index} className="border rounded-lg p-3 bg-gray-50">
+                                                <div className="flex justify-between items-center mb-2">
+                                                    <h4 className="font-medium text-sm">Chi tiết #{index + 1}</h4>
+                                                    {formik.values.goodsreceipt_detail.length > 1 && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeDetailRow(index)}
+                                                            className="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 transition-colors"
+                                                        >
+                                                            Xóa
+                                                        </button>
+                                                    )}
+                                                </div>
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-700 mb-1">Sản phẩm</label>
+                                                        <select
+                                                            name={`goodsreceipt_detail.${index}.product_id`}
+                                                            value={formik.values.goodsreceipt_detail[index].product_id}
+                                                            onChange={(e) => {
+                                                                const val = e.target.value;
+                                                                formik.setFieldValue(
+                                                                    `goodsreceipt_detail.${index}.product_id`,
+                                                                    val ? Number(val) : ''
+                                                                );
+                                                            }}
+                                                            className="w-full px-2 py-1 text-sm border rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                                        >
+                                                            <option value="">-- Chọn Sản Phẩm --</option>
+                                                            {products.map((product) => (
+                                                                <option key={product.product_id} value={product.product_id}>
+                                                                    {product.product_name}
+                                                                </option>
+                                                            ))}
+                                                            {tempProducts.map((product) => (
+                                                                <option key={product.product_id} value={product.product_id}>
+                                                                    {product.product_name} (Tạm thời)
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                        {formik.touched.goodsreceipt_detail?.[index]?.product_id &&
+                                                            formik.errors.goodsreceipt_detail?.[index]?.product_id && (
+                                                                <p className="mt-1 text-xs text-red-600">
+                                                                    {formik.errors.goodsreceipt_detail[index].product_id}
+                                                                </p>
+                                                            )}
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-700 mb-1">Số lượng</label>
+                                                        <input
+                                                            type="number"
+                                                            name={`goodsreceipt_detail.${index}.quantity`}
+                                                            value={formik.values.goodsreceipt_detail[index].quantity}
+                                                            onChange={formik.handleChange}
+                                                            min="1"
+                                                            className="w-full px-2 py-1 text-sm border rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                                        />
+                                                        {formik.touched.goodsreceipt_detail?.[index]?.quantity &&
+                                                            formik.errors.goodsreceipt_detail?.[index]?.quantity && (
+                                                                <p className="mt-1 text-xs text-red-600">
+                                                                    {formik.errors.goodsreceipt_detail[index].quantity}
+                                                                </p>
+                                                            )}
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-700 mb-1">Giá nhập</label>
+                                                        <input
+                                                            type="number"
+                                                            name={`goodsreceipt_detail.${index}.input_price`}
+                                                            value={formik.values.goodsreceipt_detail[index].input_price}
+                                                            onChange={formik.handleChange}
+                                                            min="1"
+                                                            className="w-full px-2 py-1 text-sm border rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                                        />
+                                                        {formik.touched.goodsreceipt_detail?.[index]?.input_price &&
+                                                            formik.errors.goodsreceipt_detail?.[index]?.input_price && (
+                                                                <p className="mt-1 text-xs text-red-600">
+                                                                    {formik.errors.goodsreceipt_detail[index].input_price}
+                                                                </p>
+                                                            )}
+                                                    </div>
+                                                </div>
                                             </div>
-
-                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                                                <div>
-                                                    <label className="block text-xs font-medium text-gray-700 mb-1">Sản phẩm</label>
-                                                    <select
-                                                        name={`goodsreceipt_detail.${index}.product_id`}
-                                                        value={formik.values.goodsreceipt_detail[index].product_id}
-                                                        onChange={(e) =>
-                                                            formik.setFieldValue(`goodsreceipt_detail.${index}.product_id`, Number(e.target.value))
-                                                        }
-                                                        className="w-full px-2 py-1 text-sm border rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                                                    >
-                                                        <option value="">-- Chọn Sản Phẩm --</option>
-                                                        {products.map((product) => (
-                                                            <option key={product.product_id} value={product.product_id}>
-                                                                {product.product_name}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                    {formik.touched.goodsreceipt_detail?.[index]?.product_id &&
-                                                        formik.errors.goodsreceipt_detail?.[index]?.product_id && (
-                                                            <p className="mt-1 text-xs text-red-600">{formik.errors.goodsreceipt_detail[index].product_id}</p>
-                                                        )}
-                                                </div>
-
-                                                <div>
-                                                    <label className="block text-xs font-medium text-gray-700 mb-1">Số lượng</label>
-                                                    <input
-                                                        type="number"
-                                                        name={`goodsreceipt_detail.${index}.quantity`}
-                                                        value={formik.values.goodsreceipt_detail[index].quantity}
-                                                        onChange={formik.handleChange}
-                                                        min="1"
-                                                        className="w-full px-2 py-1 text-sm border rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                                                    />
-                                                    {formik.touched.goodsreceipt_detail?.[index]?.quantity &&
-                                                        formik.errors.goodsreceipt_detail?.[index]?.quantity && (
-                                                            <p className="mt-1 text-xs text-red-600">{formik.errors.goodsreceipt_detail[index].quantity}</p>
-                                                        )}
-                                                </div>
-
-                                                <div>
-                                                    <label className="block text-xs font-medium text-gray-700 mb-1">Giá nhập</label>
-                                                    <input
-                                                        type="number"
-                                                        name={`goodsreceipt_detail.${index}.input_price`}
-                                                        value={formik.values.goodsreceipt_detail[index].input_price}
-                                                        onChange={formik.handleChange}
-                                                        min="1"
-                                                        className="w-full px-2 py-1 text-sm border rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                                                    />
-                                                    {formik.touched.goodsreceipt_detail?.[index]?.input_price &&
-                                                        formik.errors.goodsreceipt_detail?.[index]?.input_price && (
-                                                            <p className="mt-1 text-xs text-red-600">{formik.errors.goodsreceipt_detail[index].input_price}</p>
-                                                        )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
-
                                 <div className="flex justify-end">
                                     <div className="w-full md:w-1/2">
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Tổng giá</label>
@@ -334,8 +394,6 @@ const AddGoods = ({ isOpen, onClose, onAdd }) => {
                                 </div>
                             </div>
                         </div>
-
-                        {/* Action Buttons */}
                         <div className="flex justify-end space-x-3 pt-6 mt-4 border-t">
                             <button
                                 type="button"
@@ -354,12 +412,11 @@ const AddGoods = ({ isOpen, onClose, onAdd }) => {
                     </form>
                 </div>
             </div>
-
-            {/* Add Product Modal */}
             <AddProductModal
                 isOpen={showAddProductModal}
                 onClose={() => setShowAddProductModal(false)}
                 onAdd={handleAddProduct}
+                isForGoodsReceipt={true}
             />
         </div>
     );

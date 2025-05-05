@@ -3,15 +3,17 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import * as Yup from 'yup';
 import Loading from '../../../components/Loading/Loading';
-import { http } from '../../../util/config';
+import useAdminAddGoods from '../../../customhooks/AdminHooks/useAdminAddGoods';
 
 const AddProductModal = ({ isOpen, onClose, onAdd }) => {
   const loading = useSelector((state) => state.productsReducer.loading);
+  const { arrSupplier } = useAdminAddGoods();
   const formik = useFormik({
     initialValues: {
       productId: '',
       productName: '',
       productPrice: '',
+      inputPrice: '',
       imageFile: null,
       categoryId: '',
       brandId: '',
@@ -31,6 +33,9 @@ const AddProductModal = ({ isOpen, onClose, onAdd }) => {
       productPrice: Yup.number()
         .required('Giá sản phẩm là bắt buộc')
         .min(1, 'Giá phải lớn hơn 0'),
+      inputPrice: Yup.number()
+        .required('Giá nhập là bắt buộc')
+        .min(1, 'Giá nhập phải lớn hơn 0'),
       imageFile: Yup.mixed().required('Hình ảnh là bắt buộc'),
       categoryId: Yup.string().required('Danh mục là bắt buộc'),
       brandId: Yup.string().required('Thương hiệu là bắt buộc'),
@@ -44,20 +49,18 @@ const AddProductModal = ({ isOpen, onClose, onAdd }) => {
       discountPercent: Yup.number()
         .min(0, 'Tỷ lệ giảm giá không hợp lệ')
         .max(100, 'Tỷ lệ giảm giá không hợp lệ'),
-      quantity: Yup.number() // Thêm validation cho quantity
+      quantity: Yup.number()
         .required('Số lượng là bắt buộc')
         .min(1, 'Số lượng phải lớn hơn 0')
         .integer('Số lượng phải là số nguyên'),
     }),
     onSubmit: async (values) => {
-      const image_path = await http.postForm(`products/upLoadImage`, { image: values.imageFile });
-      const fullPath = image_path.data.path;
-      let imagePath = fullPath.split('public')[1].replace(/\\/g, '/').replace(/^\+/, '');
       const newProduct = {
         product_id: Number(values.productId),
         product_name: values.productName,
         output_price: Number(values.productPrice),
-        image_path: imagePath,
+        input_price: Number(values.inputPrice),
+        image_file: values.imageFile,
         category_id: values.categoryId,
         brand_id: values.brandId,
         country: values.country,
@@ -78,7 +81,6 @@ const AddProductModal = ({ isOpen, onClose, onAdd }) => {
       <div className="bg-white rounded-lg p-6 shadow-lg relative z-10 max-w-lg w-full">
         <h2 className="text-lg font-semibold mb-4 text-center">Thêm sản phẩm mới</h2>
         <form onSubmit={formik.handleSubmit}>
-          {/* Trường ID sản phẩm */}
           <div className="mb-4">
             <input
               type="text"
@@ -93,8 +95,6 @@ const AddProductModal = ({ isOpen, onClose, onAdd }) => {
               <div className="text-red-500 text-sm">{formik.errors.productId}</div>
             ) : null}
           </div>
-
-          {/* Trường tên sản phẩm */}
           <div className="mb-4">
             <input
               type="text"
@@ -109,8 +109,6 @@ const AddProductModal = ({ isOpen, onClose, onAdd }) => {
               <div className="text-red-500 text-sm">{formik.errors.productName}</div>
             ) : null}
           </div>
-
-          {/* Trường giá sản phẩm */}
           <div className="mb-4">
             <input
               type="number"
@@ -125,8 +123,21 @@ const AddProductModal = ({ isOpen, onClose, onAdd }) => {
               <div className="text-red-500 text-sm">{formik.errors.productPrice}</div>
             ) : null}
           </div>
-
-          {/* Trường số lượng - Mới thêm */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Giá nhập</label>
+            <input
+              type="number"
+              name="inputPrice"
+              placeholder="Giá nhập sản phẩm"
+              value={formik.values.inputPrice}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              className="border border-gray-300 rounded-sm w-full h-10 px-2"
+            />
+            {formik.touched.inputPrice && formik.errors.inputPrice ? (
+              <div className="text-red-500 text-sm">{formik.errors.inputPrice}</div>
+            ) : null}
+          </div>
           <div className="mb-4">
             <input
               type="number"
@@ -141,13 +152,11 @@ const AddProductModal = ({ isOpen, onClose, onAdd }) => {
               <div className="text-red-500 text-sm">{formik.errors.quantity}</div>
             ) : null}
           </div>
-
-          {/* Trường hình ảnh */}
           <div className="mb-4">
             <input
               type="file"
               name="imageFile"
-              onChange={(event) => formik.setFieldValue("imageFile", event.currentTarget.files[0])}
+              onChange={(event) => formik.setFieldValue('imageFile', event.currentTarget.files[0])}
               onBlur={formik.handleBlur}
               className="border border-gray-300 rounded-sm w-full h-10 px-2"
             />
@@ -155,8 +164,6 @@ const AddProductModal = ({ isOpen, onClose, onAdd }) => {
               <div className="text-red-500 text-sm">{formik.errors.imageFile}</div>
             ) : null}
           </div>
-
-          {/* Trường danh mục */}
           <div className="mb-4">
             <select
               name="categoryId"
@@ -166,16 +173,14 @@ const AddProductModal = ({ isOpen, onClose, onAdd }) => {
               className="border border-gray-300 rounded-sm w-full h-10 px-2"
             >
               <option value="">Chọn danh mục</option>
-              <option value="C1">C1</option>
-              <option value="C2">C2</option>
-              <option value="C3">C3</option>
+              <option value="1">C1</option>
+              <option value="2">C2</option>
+              <option value="3">C3</option>
             </select>
             {formik.touched.categoryId && formik.errors.categoryId ? (
               <div className="text-red-500 text-sm">{formik.errors.categoryId}</div>
             ) : null}
           </div>
-
-          {/* Trường thương hiệu */}
           <div className="mb-4">
             <select
               name="brandId"
@@ -185,16 +190,14 @@ const AddProductModal = ({ isOpen, onClose, onAdd }) => {
               className="border border-gray-300 rounded-sm w-full h-10 px-2"
             >
               <option value="">Chọn thương hiệu</option>
-              <option value="B1">B1</option>
-              <option value="B2">B2</option>
-              <option value="B3">B3</option>
+              <option value="1">B1</option>
+              <option value="2">B2</option>
+              <option value="3">B3</option>
             </select>
             {formik.touched.brandId && formik.errors.brandId ? (
               <div className="text-red-500 text-sm">{formik.errors.brandId}</div>
             ) : null}
           </div>
-
-          {/* Trường quốc gia */}
           <div className="mb-4">
             <input
               type="text"
@@ -209,8 +212,6 @@ const AddProductModal = ({ isOpen, onClose, onAdd }) => {
               <div className="text-red-500 text-sm">{formik.errors.country}</div>
             ) : null}
           </div>
-
-          {/* Trường năm sản xuất */}
           <div className="mb-4">
             <input
               type="number"
@@ -225,8 +226,6 @@ const AddProductModal = ({ isOpen, onClose, onAdd }) => {
               <div className="text-red-500 text-sm">{formik.errors.yearOfProduct}</div>
             ) : null}
           </div>
-
-          {/* Trường tỷ lệ giảm giá */}
           <div className="mb-4">
             <input
               type="number"
@@ -241,14 +240,16 @@ const AddProductModal = ({ isOpen, onClose, onAdd }) => {
               <div className="text-red-500 text-sm">{formik.errors.discountPercent}</div>
             ) : null}
           </div>
-
-          {/* Nút thêm và hủy */}
           <div className="flex justify-end">
-            <button onClick={onClose} type="button" className="bg-gray-400 text-white px-4 py-2 rounded mr-2">
-              Cancle
+            <button
+              onClick={onClose}
+              type="button"
+              className="bg-gray-400 text-white px-4 py-2 rounded mr-2"
+            >
+              Cancel
             </button>
             <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-              {loading ? "Đang xử lý..." : "Add"}
+              {loading ? 'Đang xử lý...' : 'Add'}
             </button>
           </div>
         </form>

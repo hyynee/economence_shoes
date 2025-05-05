@@ -52,15 +52,18 @@ export const AdminAddProdActionApi = (newProduct) => {
         dispatch(setLoading(true));
         try {
             const result = await http.post('/products/themSanPham', newProduct);
+            console.log("API Result:", result.data);
             const action = AdminAddProdAction(result.data);
             dispatch(action);
+            return result.data;
         } catch (err) {
             console.log("err", err.response?.data.message);
+            throw err;
         } finally {
             dispatch(setLoading(false));
         }
-    }
-}
+    };
+};
 export const AdminDeleteProdActionApi = (productId) => {
     return async (dispatch) => {
         try {

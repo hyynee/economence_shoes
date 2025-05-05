@@ -103,7 +103,6 @@ export class ProductsService {
     });
   }
   async themProduct(prod: CreateProductDto): Promise<product> {
-    // console.log(prod);
     const existingProduct = await this.model.product.findUnique({
       where: { product_id: prod.product_id },
     });

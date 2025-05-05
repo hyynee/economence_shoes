@@ -23,9 +23,14 @@ const Goodsreceipt = () => {
   const closeModal = () => {
     setIsModalOpen(false);
   };
-  const handleAddGood = (newReceipt) => {
-    const action = addGoodsReceiptActionAPI(newReceipt);
-    dispatch(action);
+  const handleAddGood = async (newReceipt) => {
+    try {
+      await dispatch(addGoodsReceiptActionAPI(newReceipt));
+      await getAllGoodsreceipts();
+      closeModal();
+    } catch (error) {
+      console.error("Lỗi khi thêm phiếu nhập:", error);
+    }
   }
 
   return (

@@ -27,6 +27,7 @@ export class GoodsreceiptService {
     });
   }
   async createGoodsreceipt(dto: CreateGoodsreceipt, full_name: string) {
+    console.log('CreateGoodsreceipt', dto);
     let totalPrice = 0;
     const supplier = await this.model.supplier.findUnique({
       where: { supplier_id: dto.supplier_id },
@@ -45,19 +46,13 @@ export class GoodsreceiptService {
       throw new BadRequestException(`Tài khoản ${full_name} không tồn tại.`);
     }
 
-    // Kiểm tra và xử lý từng chi tiết phiếu nhập
     for (const detail of dto.goodsreceipt_detail) {
-      // Kiểm tra sản phẩm có tồn tại không
       const product = await this.model.product.findUnique({
         where: { product_id: detail.product_id },
         select: { output_price: true, quantity: true, product_id: true },
       });
 
-      // Nếu không có sản phẩm (sản phẩm mới), đã được thêm từ frontend rồi
-      // Bạn có thể thêm một trường để đánh dấu sản phẩm đã được thêm mới hoặc không nếu cần
-
       if (product) {
-        // Nếu sản phẩm tồn tại, kiểm tra giá nhập
         if (detail.input_price > product.output_price) {
           throw new BadRequestException(
             `Giá nhập (${detail.input_price}) không được cao hơn giá bán (${product.output_price}) cho sản phẩm ID ${detail.product_id}.`,

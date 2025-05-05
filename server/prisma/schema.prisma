@@ -168,6 +168,7 @@ model product {
   brand_id            String                @db.VarChar(45)
   product_name        String                @db.VarChar(45)
   output_price        Int
+  input_price         Int
   country             String                @db.VarChar(45)
   year_of_product     Int
   discount_percent    Int
