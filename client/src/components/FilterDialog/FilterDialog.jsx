@@ -35,7 +35,7 @@ const FilterDialog = ({
     };
 
     return (
-        <Dialog open={open} onClose={() => setOpen(false)} className="relative z-10">
+        <Dialog open={open} onClose={() => setOpen(false)} className="relative z-10 ">
             <div className="fixed inset-0 bg-black bg-opacity-25 transition-opacity" />
             <div className="fixed inset-0 flex justify-end">
                 <DialogPanel className="w-full sm:max-w-sm bg-white shadow-xl h-full flex flex-col transform transition-all ease-in-out duration-500">

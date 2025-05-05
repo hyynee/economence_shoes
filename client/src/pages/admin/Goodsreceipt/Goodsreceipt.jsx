@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addGoodsReceiptActionAPI, getAllGoodsreceiptActionAPI } from '../../../redux/goodReducer/goodReducer';
 import { columns } from '../../../util/GoodsreceiptDepartments';
 import AddGoods from './AddGoods';
-import "./ViewDetail.css";
 const Goodsreceipt = () => {
   const dispatch = useDispatch();
   const [isModalOpen, setIsModalOpen] = useState(false);

@@ -16,7 +16,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "formik": "^2.4.6",
-    "framer-motion": "^11.11.11",
+    "framer-motion": "^11.18.2",
     "history": "^5.3.0",
     "jwt-decode": "^4.0.0",
     "nestjs-stripe": "^1.0.0",

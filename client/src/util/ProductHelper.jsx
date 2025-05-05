@@ -1,50 +1,83 @@
-// src/util/productHelper.js
 export const productColumns = (handleDeleteProduct, handleEditProduct) => [
   {
-    name: <h1 className="font-semibold text-lg text-gray-700 text-center">ID</h1>,
-    selector: row => <span className="text-[16px]">{row.product_id}</span>,
+    name: 'ID',
+    selector: row => row.product_id,
     sortable: true,
-  },
-  {
-    name: <h1 className="font-semibold text-lg text-gray-700 text-center">NAME</h1>,
-    selector: row => <span className="text-[16px]">{row.product_name}</span>,
-    sortable: true,
-  },
-  {
-    name: <h1 className="font-semibold text-lg text-gray-700 text-center">IMAGE</h1>,
+    width: '100px',
     cell: row => (
-      <img
-        src={`http://localhost:8080/public${row.image_path}`}
-        alt={row.product_name}
-        className="w-20 h-20 object-cover mx-auto rounded-lg shadow-md"
-      />
+      <span className="id">
+        #{row.product_id}
+      </span>
     ),
-    ignoreRowClick: true,
   },
   {
-    name: <h1 className="font-semibold text-lg text-gray-700 text-center">PRICE</h1>,
-    selector: row => <span className="text-[16px]">{row.output_price}$</span>,
+    name: 'PRODUCT',
+    selector: row => row.product_name,
     sortable: true,
-  },
-  {
-    name: <h1 className="font-semibold text-lg text-gray-700 text-center">Quantity</h1>,
-    selector: row => <span className="text-[16px]">Kho còn: {row.quantity}</span>,
-    sortable: true,
-  },
-  {
-    name: <h1 className="font-semibold text-lg text-gray-700 text-center">ACTIONS</h1>,
     cell: row => (
-      <div className="flex justify-center gap-2">
-        <button className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 transition-all duration-200"
-          onClick={() => handleEditProduct(row)}
-        >Edit</button>
+      <div className="product-cell">
+        <div className="image-container">
+          <img
+            src={`http://localhost:8080/public${row.image_path}`}
+            alt={row.product_name}
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = 'https://via.placeholder.com/40';
+            }}
+          />
+        </div>
+        <div>
+          <div className="product-name">
+            {row.product_name}
+          </div>
+          <div className="category">
+            {row?.category_id || 'No category'}
+          </div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    name: 'PRICE',
+    selector: row => row.output_price,
+    sortable: true,
+    width: '120px',
+    cell: row => (
+      <span className="price">
+        ${row.output_price}
+      </span>
+    ),
+  },
+  {
+    name: 'STOCK',
+    selector: row => row.quantity,
+    sortable: true,
+    width: '120px',
+    cell: row => (
+      <span className={`stock ${row.quantity > 10 ? 'green' : row.quantity > 0 ? 'yellow' : 'red'}`}>
+        {row.quantity} in stock
+      </span>
+    ),
+  },
+  {
+    name: 'ACTIONS',
+    width: '180px',
+    cell: row => (
+      <div className="actions">
         <button
-          className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition-all duration-200"
-          onClick={() => handleDeleteProduct(row.product_id)}>
+          onClick={() => handleEditProduct(row)}
+          className="edit"
+        >
+          Edit
+        </button>
+        <button
+          onClick={() => handleDeleteProduct(row.product_id)}
+          className="delete"
+        >
           Delete
         </button>
       </div>
     ),
-    ignoreRowClick: true
+    ignoreRowClick: true,
   },
 ];

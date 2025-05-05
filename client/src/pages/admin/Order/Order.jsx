@@ -8,7 +8,6 @@ import FilterOrder from './FilterOrder'; // Sẽ tạo component này
 const Order = () => {
   const { arrOrder } = useSelector(state => state.orderReducer);
   const dispatch = useDispatch();
-  console.log("order", arrOrder);
   const [filterStatus, setFilterStatus] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -29,7 +28,6 @@ const Order = () => {
   const filteredOrders = arrOrder.filter(order => {
     // Lọc theo trạng thái giao hàng
     const statusMatch = filterStatus ? order.delivery_status === filterStatus : true;
-
     // Lọc theo khoảng thời gian
     let dateMatch = true;
     if (startDate && endDate) {
@@ -38,17 +36,14 @@ const Order = () => {
       const end = new Date(endDate);
       dateMatch = orderDate >= start && orderDate <= end;
     }
-
     // Lọc theo địa điểm
     const locationMatch = location ?
       (order.shipping_address && order.shipping_address.toLowerCase().includes(location.toLowerCase())) :
       true;
-
     // Lọc theo tên khách hàng
     const searchMatch = searchTerm ?
       (order.account?.full_name.toLowerCase().includes(searchTerm.toLowerCase())) :
       true;
-
     return statusMatch && dateMatch && locationMatch && searchMatch;
   });
 
@@ -58,7 +53,6 @@ const Order = () => {
         <div className='text-center'>
           <h3 className='text-2xl font-bold'>Order Departments</h3>
         </div>
-
         {/* Tìm kiếm theo tên khách hàng */}
         <div className='flex justify-between items-center mt-4'>
           <input

@@ -18,6 +18,7 @@ const AddProductModal = ({ isOpen, onClose, onAdd }) => {
       country: 'Vietnam',
       yearOfProduct: new Date().getFullYear(),
       discountPercent: 0,
+      quantity: 1,
     },
     validationSchema: Yup.object({
       productId: Yup.number()
@@ -43,6 +44,10 @@ const AddProductModal = ({ isOpen, onClose, onAdd }) => {
       discountPercent: Yup.number()
         .min(0, 'Tỷ lệ giảm giá không hợp lệ')
         .max(100, 'Tỷ lệ giảm giá không hợp lệ'),
+      quantity: Yup.number() // Thêm validation cho quantity
+        .required('Số lượng là bắt buộc')
+        .min(1, 'Số lượng phải lớn hơn 0')
+        .integer('Số lượng phải là số nguyên'),
     }),
     onSubmit: async (values) => {
       const image_path = await http.postForm(`products/upLoadImage`, { image: values.imageFile });
@@ -58,6 +63,7 @@ const AddProductModal = ({ isOpen, onClose, onAdd }) => {
         country: values.country,
         year_of_product: Number(values.yearOfProduct),
         discount_percent: Number(values.discountPercent),
+        quantity: Number(values.quantity),
       };
       await onAdd(newProduct);
       onClose();
@@ -117,6 +123,22 @@ const AddProductModal = ({ isOpen, onClose, onAdd }) => {
             />
             {formik.touched.productPrice && formik.errors.productPrice ? (
               <div className="text-red-500 text-sm">{formik.errors.productPrice}</div>
+            ) : null}
+          </div>
+
+          {/* Trường số lượng - Mới thêm */}
+          <div className="mb-4">
+            <input
+              type="number"
+              name="quantity"
+              placeholder="Số lượng"
+              value={formik.values.quantity}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              className="border border-gray-300 rounded-sm w-full h-10 px-2"
+            />
+            {formik.touched.quantity && formik.errors.quantity ? (
+              <div className="text-red-500 text-sm">{formik.errors.quantity}</div>
             ) : null}
           </div>
 
