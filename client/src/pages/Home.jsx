@@ -53,7 +53,7 @@ const Home = () => {
             {sortedProducts.length > 0 ? (
               sortedProducts.map((product) => (
                 <motion.div
-                  key={product.id}
+                  key={product.product_id}
                   className="group relative"
                   whileHover={{ y: -5 }}
                 >

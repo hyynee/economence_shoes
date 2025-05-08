@@ -116,14 +116,9 @@ export class ProductsService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-    const newProductData = {
-      ...prod,
-      quantity: prod.quantity ?? 1,
-    };
 
-    // Thêm sản phẩm mới
     return await this.model.product.create({
-      data: newProductData,
+      data: prod,
     });
   }
 

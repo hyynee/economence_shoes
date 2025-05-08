@@ -5,17 +5,23 @@ import Navbar from "../components/NavBar/Navbar"
 
 const Header = () => {
   return (
-    <header className='py-8 xl:py-8'>
-      <div className='mx-auto flex justify-between items-center fixed top-0 left-0 right-0 bg-blue-400 text-white z-50' >
-        {/* lOGO */}
-        <NavLink href="/">
-          <h1 className='text-4xl font-semibold container'>HuyAnh</h1>
-        </NavLink>
-        {/* desktop NAV */}
-        <div className="hidden xl:flex items-center gap-8">
-          <Navbar></Navbar>
+    <header className="sticky top-0 z-50 bg-blue-500 shadow-sm">
+      <div className="mx-auto px-4">
+        <div className="flex h-16 items-center justify-between">
+          {/* Logo */}
+          <NavLink to="/" className="flex items-center">
+            <h1 className="text-2xl font-bold text-gray-600">HuyAnh</h1>
+          </NavLink>
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-8">
+            <Navbar />
+          </div>
+
+          {/* Mobile Navigation  */}
+          <div className="md:hidden">
+            <MobileNavbar />
+          </div>
         </div>
-        <MobileNavbar />
       </div>
     </header>
   )
