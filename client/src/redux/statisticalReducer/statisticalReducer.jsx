@@ -5,6 +5,7 @@ const initialState = {
     totalPrice: [],
     bestSellingProducts: [],
     totalProfit: {},
+    topCustomers: [],
 }
 
 const statisticalReducer = createSlice({
@@ -19,11 +20,14 @@ const statisticalReducer = createSlice({
         },
         getTotalProfitAction: (state, action) => {
             state.totalProfit = action.payload;
+        },
+        getTopCustomersAction: (state, action) => {
+            state.topCustomers = action.payload;
         }
     }
 });
 
-export const { getAllStaAction, getBestSellingProductsAction, getTotalProfitAction } = statisticalReducer.actions
+export const { getAllStaAction, getBestSellingProductsAction, getTotalProfitAction, getTopCustomersAction } = statisticalReducer.actions
 
 export default statisticalReducer.reducer
 
@@ -60,6 +64,17 @@ export const getTotalProfitActionApi = () => {
             const reslut = await http.get('/statistical/compare-revenue-cost');
             const action = getTotalProfitAction(reslut.data);
             dispatch(action);
+        } catch (err) {
+            console.log("err", err.response?.data.message);
+        }
+    }
+}
+
+export const getTopCustomersAPI = (startDate, endDate) => {
+    return async (dispatch) => {
+        try {
+            const result = await http.get(`/statistical/top-customers?startDate=${startDate}&endDate=${endDate}`);
+            dispatch(getTopCustomersAction(result.data));
         } catch (err) {
             console.log("err", err.response?.data.message);
         }

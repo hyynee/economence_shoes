@@ -49,7 +49,7 @@ const Supplier = () => {
                 <div className='flex flex-col md:flex-row justify-between items-center mb-6 gap-4'>
                     <input
                         type="text"
-                        placeholder='Search By Dep Name'
+                        placeholder='Search By Supplier Name'
                         className='px-4 py-2 border rounded-lg w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-teal-500'
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}

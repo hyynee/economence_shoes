@@ -1,12 +1,17 @@
 import { StarIcon } from "@heroicons/react/24/outline";
 import { motion } from "framer-motion";
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink } from "react-router-dom";
 import Carousel from '../components/Carousel/Carousel';
 import FilterBar from '../components/FilterDialog/FilterBar';
 import FilterDialog from '../components/FilterDialog/FilterDialog';
 import useProducts from '../customhooks/useProducts';
+
 const Home = () => {
+  // State cho pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 10;
+
   const {
     sortedProducts,
     selectedFilter,
@@ -22,6 +27,26 @@ const Home = () => {
     setSortOrder,
     handleAddToCart
   } = useProducts();
+
+  // Logic phân trang
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = sortedProducts.slice(indexOfFirstProduct, indexOfLastProduct);
+  const totalPages = Math.ceil(sortedProducts.length / productsPerPage);
+
+  // Reset về trang 1 khi thay đổi bộ lọc
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedFilter]);
+
+  // Hàm chuyển trang
+  const paginate = (pageNumber) => {
+    // Kiểm tra giới hạn trang
+    if (pageNumber < 1 || pageNumber > totalPages) return;
+    setCurrentPage(pageNumber);
+    // Cuộn lên đầu trang khi chuyển trang
+    // window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div className='min-h-screen'>
@@ -50,8 +75,8 @@ const Home = () => {
           viewport={{ once: true, amount: 0.2 }}
         >
           <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
-            {sortedProducts.length > 0 ? (
-              sortedProducts.map((product) => (
+            {currentProducts.length > 0 ? (
+              currentProducts.map((product) => (
                 <motion.div
                   key={product.product_id}
                   className="group relative"
@@ -110,14 +135,75 @@ const Home = () => {
             ) : (
               <p className="text-center text-gray-500 col-span-full">Không có sản phẩm nào phù hợp.</p>
             )}
-
           </div>
         </motion.div>
+
+        {/* Pagination Component */}
+        {sortedProducts.length > 0 && (
+          <div className="flex justify-center my-8">
+            <nav className="flex items-center space-x-2">
+              {/* Previous Page Button */}
+              <button
+                onClick={() => paginate(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`px-3 py-2 rounded-md ${currentPage === 1
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-gray-700 hover:bg-blue-100"
+                  }`}
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+
+              {/* Page Numbers */}
+              {[...Array(totalPages).keys()].map((number) => {
+                // Giới hạn hiển thị số trang 
+                if (
+                  number + 1 === 1 ||
+                  number + 1 === totalPages ||
+                  (number + 1 >= currentPage - 1 && number + 1 <= currentPage + 1)
+                ) {
+                  return (
+                    <button
+                      key={number + 1}
+                      onClick={() => paginate(number + 1)}
+                      className={`px-3 py-1 rounded-md ${currentPage === number + 1
+                        ? "bg-blue-600 text-white"
+                        : "text-gray-700 hover:bg-blue-100"
+                        }`}
+                    >
+                      {number + 1}
+                    </button>
+                  );
+                } else if (
+                  (number + 1 === currentPage - 2 && currentPage > 3) ||
+                  (number + 1 === currentPage + 2 && currentPage < totalPages - 2)
+                ) {
+                  return <span key={number + 1} className="px-1">...</span>;
+                }
+                return null;
+              })}
+
+              {/* Next Page Button */}
+              <button
+                onClick={() => paginate(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={`px-3 py-2 rounded-md ${currentPage === totalPages
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-gray-700 hover:bg-blue-100"
+                  }`}
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </nav>
+          </div>
+        )}
       </div>
     </div>
   )
 }
 
 export default Home;
-
-

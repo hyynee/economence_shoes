@@ -69,6 +69,7 @@ const AddProductModal = ({ isOpen, onClose, onAdd }) => {
         quantity: Number(values.quantity),
       };
       await onAdd(newProduct);
+      formik.resetForm();
       onClose();
     },
   });
