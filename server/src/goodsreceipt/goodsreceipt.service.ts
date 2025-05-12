@@ -107,6 +107,7 @@ export class GoodsreceiptService {
 
     return goodsreceipt;
   }
+  // không dc sửa phiếu nhập ==> làm bị dư
   async updateGoodsreceipt(dto: UpdategoodReceipt, id: number) {
     let totalPrice = 0;
     //  B1: Check phiếu nhập hàng có tồn tại không

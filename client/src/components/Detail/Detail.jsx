@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { NavLink, useParams } from 'react-router-dom';
 import useProductDetail from '../../customhooks/useProductDetail';
@@ -8,6 +8,14 @@ const Detail = () => {
     const { prodDetail, loading, error, quantity, handleChangeQuantity, handleAddtoCart } = useProductDetail(id);
     const { arrProd } = useSelector(state => state.productsReducer);
     const relatedProducts = useMemo(() => arrProd || [], [arrProd]);
+    const [visibleCount, setVisibleCount] = useState(8);
+
+    const handleViewMore = () => {
+        setVisibleCount(prev => prev + 4);
+    };
+
+    const visibleProducts = relatedProducts.slice(0, visibleCount);
+    const hasMoreProducts = visibleCount < relatedProducts.length;
 
     if (loading) return (
         <div className="flex items-center justify-center min-h-screen">
@@ -104,7 +112,7 @@ const Detail = () => {
             <div className='mt-16'>
                 <h2 className='text-3xl font-bold mb-8'>Related Products</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                    {relatedProducts.map((item) => (
+                    {visibleProducts.map((item) => (
                         <div
                             className="group bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden"
                             key={item.product_id}
@@ -142,6 +150,16 @@ const Detail = () => {
                         </div>
                     ))}
                 </div>
+                {hasMoreProducts && (
+                    <div className="mt-8 text-center">
+                        <button
+                            onClick={handleViewMore}
+                            className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors"
+                        >
+                            View More
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

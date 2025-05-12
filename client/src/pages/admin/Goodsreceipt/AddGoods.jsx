@@ -14,6 +14,12 @@ const AddGoods = ({ isOpen, onClose, onAdd }) => {
     const [products, setProducts] = useState([]);
     const [tempProducts, setTempProducts] = useState([]);
 
+    // Get current date in YYYY-MM-DD format
+    const getCurrentDate = () => {
+        const today = new Date();
+        return today.toISOString().split('T')[0];
+    };
+
     useEffect(() => {
         if (arrProd && arrProd.length > 0) {
             const uniqueIds = new Set(arrProd.map(p => p.product_id));
@@ -33,7 +39,7 @@ const AddGoods = ({ isOpen, onClose, onAdd }) => {
     const formik = useFormik({
         initialValues: {
             goodsreceipt_name: '',
-            date: '',
+            date: getCurrentDate(), // Set default to current date
             supplier_id: '',
             full_name: userProfile?.data?.full_name || '',
             goodsreceipt_detail: [
@@ -122,7 +128,12 @@ const AddGoods = ({ isOpen, onClose, onAdd }) => {
     });
 
     const handleClose = () => {
-        formik.resetForm();
+        formik.resetForm({
+            values: {
+                ...formik.initialValues,
+                date: getCurrentDate(), // Reset date to current date
+            }
+        });
         setTempProducts([]);
         onClose();
     };
@@ -230,9 +241,8 @@ const AddGoods = ({ isOpen, onClose, onAdd }) => {
                                         type="date"
                                         name="date"
                                         value={formik.values.date}
-                                        onChange={formik.handleChange}
-                                        onBlur={formik.handleBlur}
-                                        className="w-full px-3 py-2 border rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                        readOnly
+                                        className="w-full px-3 py-2 border rounded-md bg-gray-100 cursor-not-allowed"
                                     />
                                     {formik.touched.date && formik.errors.date && (
                                         <p className="mt-1 text-sm text-red-600">{formik.errors.date}</p>
