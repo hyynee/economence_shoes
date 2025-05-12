@@ -52,12 +52,12 @@ const App = () => {
                 <Route path='login' element={<Login />} />
                 <Route path='register' element={<Register />} />
                 <Route path='work' element={<Work />} />
+                <Route path='service' element={<Services />} />
                 <Route path='detail'>
                   <Route path=':id' element={<Detail></Detail>}></Route>
                 </Route>
                 <Route path="/my-orders" element={<MyOrders />} />
                 <Route path="/order/:id" element={<OrderDetail />} />
-                <Route path='service' element={<Services />} />
                 <Route path='forgot-password' element={<ForgotPassword />} />
                 <Route path='profile' element={<Profile />} />
                 <Route path='tablecart' element={<TableCart />} />

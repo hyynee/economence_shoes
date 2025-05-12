@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import DataTable from 'react-data-table-component';
 import useAdminUsers from '../../../customhooks/AdminHooks/useAdminUsers';
 import { columns } from '../../../util/UserDepartmentHelper';
 import Add from './Add';
+
 const Customer = () => {
     const {
         userData,
@@ -13,6 +14,19 @@ const Customer = () => {
         openModal,
         closeModal
     } = useAdminUsers();
+
+    useEffect(() => {
+        console.log('Total users:', userData.length);
+        console.log('User data:', userData);
+    }, [userData]);
+
+    const paginationOptions = {
+        rowsPerPageText: 'Số hàng mỗi trang:',
+        rangeSeparatorText: 'trên tổng số',
+        selectAllRowsItem: true,
+        selectAllRowsItemText: 'Tất cả',
+    };
+
     return (
         <div className='container'>
             <div className='p-5'>
@@ -35,6 +49,13 @@ const Customer = () => {
                         columns={columns}
                         data={userData}
                         pagination
+                        paginationPerPage={10}
+                        paginationRowsPerPageOptions={[10, 20, 30, 40, 50]}
+                        paginationComponentOptions={paginationOptions}
+                        highlightOnHover
+                        pointerOnHover
+                        noDataComponent="Không có dữ liệu"
+                        persistTableHead
                     />
                     <Add isOpen={isModalOpen} onClose={closeModal} onAdd={handleAddAccount}></Add>
                 </div>

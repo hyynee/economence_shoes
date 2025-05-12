@@ -144,9 +144,9 @@ const EditProductModal = ({ isOpen, onClose, product, onEdit }) => {
                             className="border border-gray-300 rounded-sm w-full h-10 px-2"
                         >
                             <option value="">Chọn danh mục</option>
-                            <option value="C1">C1</option>
-                            <option value="C2">C2</option>
-                            <option value="C3">C3</option>
+                            <option value="1">C1</option>
+                            <option value="2">C2</option>
+                            <option value="3">C3</option>
                         </select>
                         {formik.touched.categoryId && formik.errors.categoryId ? (
                             <div className="text-red-500 text-sm">{formik.errors.categoryId}</div>
@@ -163,9 +163,9 @@ const EditProductModal = ({ isOpen, onClose, product, onEdit }) => {
                             className="border border-gray-300 rounded-sm w-full h-10 px-2"
                         >
                             <option value="">Chọn thương hiệu</option>
-                            <option value="B1">B1</option>
-                            <option value="B2">B2</option>
-                            <option value="B3">B3</option>
+                            <option value="1">B1</option>
+                            <option value="2">B2</option>
+                            <option value="3">B3</option>
                         </select>
                         {formik.touched.brandId && formik.errors.brandId ? (
                             <div className="text-red-500 text-sm">{formik.errors.brandId}</div>

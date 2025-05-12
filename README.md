@@ -11,3 +11,17 @@
 # FE: React JS, TaiLwind CSS, Redux
 
 # BE: Node JS, Prisma, My Sql
+
+#CHAY BE
+
+# thay đổi url theo db của bạn: DATABASE_URL="mysql://user:password@localhost:3306/db_name"
+
+# npx prisma db pull
+
+# npx prisma generateKhởi tạo schema Prisma (nếu DB đã có)
+
+# Nếu database chưa có (dự án mới)
+
+# npx prisma migrate dev --name init
+
+#
