@@ -42,13 +42,13 @@ model bill {
 }
 
 model brand {
-  brand_id   String    @id @db.VarChar(45)
+  brand_id   Int       @id @default(autoincrement())
   brand_name String    @db.VarChar(45)
   product    product[]
 }
 
 model category {
-  category_id   String    @id @db.VarChar(45)
+  category_id   Int       @id @default(autoincrement())
   category_name String    @db.VarChar(45)
   product       product[]
 }
@@ -164,8 +164,8 @@ model khuyenmai {
 
 model product {
   product_id          Int                   @id @default(autoincrement())
-  category_id         String                @db.VarChar(45)
-  brand_id            String                @db.VarChar(45)
+  category_id         Int
+  brand_id            Int
   product_name        String                @db.VarChar(45)
   output_price        Int
   input_price         Int

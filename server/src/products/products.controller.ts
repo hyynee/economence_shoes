@@ -63,9 +63,9 @@ export class ProductsController {
   @HttpCode(201)
   @Get('/getProductsPage/:page/:pageSize')
   getProductsPage(
-    @Param('page') page: number,
-    @Param('pageSize') pageSize: number,
-  ): Promise<product[]> {
+    @Param('page', ParseIntPipe) page: number,
+    @Param('pageSize', ParseIntPipe) pageSize: number,
+  ): Promise<{ products: product[]; totalPages: number }> {
     return this.productsService.getProductsPage(page, pageSize);
   }
   @ApiConsumes('multipart/form-data')

@@ -139,7 +139,7 @@ const Home = () => {
         </motion.div>
 
         {/* Pagination Component */}
-        {sortedProducts.length > 0 && (
+        {sortedProducts.length > 0 && totalPages > 1 && (
           <div className="flex justify-center my-8">
             <nav className="flex items-center space-x-2">
               {/* Previous Page Button */}

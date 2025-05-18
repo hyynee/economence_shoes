@@ -2,7 +2,7 @@ import axios from "axios";
 import { history } from "..";
 
 export const domain = 'http://localhost:8080'
-export const USERLOGIN = "userLogin";
+export const USERLOGIN = "userAdmin";
 export const http = axios.create({
     baseURL: domain,
     timeout: 30000,
@@ -13,7 +13,6 @@ export const http = axios.create({
 http.interceptors.request.use((config) => {
     config.headers = { ...config.headers }
     let token = getStorageJSON(USERLOGIN)?.token;
-    
     config.headers.Authorization = `Bearer ${token}`;
     return config;
 });

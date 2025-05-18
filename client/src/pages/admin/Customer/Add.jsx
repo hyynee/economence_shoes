@@ -1,7 +1,6 @@
 import { useFormik } from 'formik';
 import React from 'react';
 import * as Yup from 'yup';
-import { http } from '../../../util/config';
 
 const Add = ({ isOpen, onClose, onAdd }) => {
   const formik = useFormik({
@@ -17,7 +16,8 @@ const Add = ({ isOpen, onClose, onAdd }) => {
         .min(3, 'Tên phải có ít nhất 3 ký tự'),
       email: Yup.string()
         .required('Email là bắt buộc')
-        .email('Email không hợp lệ'),
+        .email('Email không hợp lệ')
+        .matches(/^[a-zA-Z0-9._%+-]+@(gmail\.com|yahoo\.com)$/, 'Email phải là địa chỉ @gmail.com hoặc @yahoo.com'),
       roleId: Yup.string()
         .required('Vai trò là bắt buộc')
         .oneOf(['1', '2'], 'Vai trò không hợp lệ'),
@@ -33,6 +33,7 @@ const Add = ({ isOpen, onClose, onAdd }) => {
         password: values.password,
       };
       await onAdd(newAccount);
+      formik.resetForm();
       onClose();
     },
   });

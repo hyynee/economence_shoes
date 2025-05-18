@@ -95,6 +95,7 @@ export const searchProductActionAPI = (nameProd) => {
     return async (dispatch) => {
         try {
             const result = await http.get(`/products/getProductsByName/${nameProd}`);
+            console.log("result", result.data);
             dispatch(getAllProdAction(result.data));
         } catch (err) {
             console.log("err", err.response?.data.message);

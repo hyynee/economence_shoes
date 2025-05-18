@@ -96,11 +96,18 @@ export class ProductsService {
       },
     });
   }
-  async getProductsPage(page: number, pageSize: number): Promise<product[]> {
-    return await this.model.product.findMany({
+  async getProductsPage(page: number, pageSize: number) {
+    const totalProducts = await this.model.product.count(); // Đếm tổng số sản phẩm
+    const products = await this.model.product.findMany({
       skip: (page - 1) * pageSize,
       take: Number(pageSize),
     });
+    return {
+      totalProducts,
+      totalPages: Math.ceil(totalProducts / pageSize), // Tính tổng số trang
+      currentPage: page,
+      products,
+    };
   }
   async themProduct(prod: CreateProductDto): Promise<product> {
     const existingProduct = await this.model.product.findUnique({

@@ -15,8 +15,8 @@ const AddProductModal = ({ isOpen, onClose, onAdd }) => {
       productPrice: '',
       inputPrice: '',
       imageFile: null,
-      categoryId: '',
-      brandId: '',
+      categoryId: 0,
+      brandId: 0,
       country: 'Vietnam',
       yearOfProduct: new Date().getFullYear(),
       discountPercent: 0,
@@ -61,8 +61,8 @@ const AddProductModal = ({ isOpen, onClose, onAdd }) => {
         output_price: Number(values.productPrice),
         input_price: Number(values.inputPrice),
         image_file: values.imageFile,
-        category_id: values.categoryId,
-        brand_id: values.brandId,
+        category_id: Number(values.categoryId),
+        brand_id: Number(values.brandId),
         country: values.country,
         year_of_product: Number(values.yearOfProduct),
         discount_percent: Number(values.discountPercent),
@@ -173,10 +173,10 @@ const AddProductModal = ({ isOpen, onClose, onAdd }) => {
               onBlur={formik.handleBlur}
               className="border border-gray-300 rounded-sm w-full h-10 px-2"
             >
-              <option value="">Chọn danh mục</option>
-              <option value="1">C1</option>
-              <option value="2">C2</option>
-              <option value="3">C3</option>
+              <option value={0}>Chọn danh mục</option>
+              <option value={1}>C1</option>
+              <option value={2}>C2</option>
+              <option value={3}>C3</option>
             </select>
             {formik.touched.categoryId && formik.errors.categoryId ? (
               <div className="text-red-500 text-sm">{formik.errors.categoryId}</div>
@@ -190,10 +190,10 @@ const AddProductModal = ({ isOpen, onClose, onAdd }) => {
               onBlur={formik.handleBlur}
               className="border border-gray-300 rounded-sm w-full h-10 px-2"
             >
-              <option value="">Chọn thương hiệu</option>
-              <option value="1">B1</option>
-              <option value="2">B2</option>
-              <option value="3">B3</option>
+              <option value={0}>Chọn thương hiệu</option>
+              <option value={1}>B1</option>
+              <option value={2}>B2</option>
+              <option value={3}>B3</option>
             </select>
             {formik.touched.brandId && formik.errors.brandId ? (
               <div className="text-red-500 text-sm">{formik.errors.brandId}</div>

@@ -38,7 +38,18 @@ export const productColumns = (handleDeleteProduct, handleEditProduct) => [
     ),
   },
   {
-    name: 'PRICE',
+    name: 'INTPUT',
+    selector: row => row.input_price,
+    sortable: true,
+    width: '120px',
+    cell: row => (
+      <span className="price">
+        ${row.input_price}
+      </span>
+    ),
+  },
+  {
+    name: 'OUTPUT',
     selector: row => row.output_price,
     sortable: true,
     width: '120px',

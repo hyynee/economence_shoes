@@ -17,7 +17,8 @@ export class AccountController {
   @UseGuards(AuthGuard("jwt"))
   @HttpCode(201)
   @Get("/getAllUser")
-  getAllUser(@Headers("token") headers) {
+  async getAllUser(@Headers("token") headers) {
+    console.log(await this.accountService.getAllUser())
     return this.accountService.getAllUser();
   }
   // data info user login

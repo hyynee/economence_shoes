@@ -23,7 +23,8 @@ const Register = () => {
       email: yup
         .string()
         .email('Invalid email format')
-        .required('Email is required'),
+        .required('Email is required')
+        .matches(/^[a-zA-Z0-9._%+-]+@(gmail\.com|yahoo\.com)$/, 'Email must be a @gmail.com or @yahoo.com address'),
       password: yup
         .string()
         .min(4, 'Password must be at least 4 characters long')

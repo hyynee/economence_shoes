@@ -9,7 +9,8 @@ import { UpdateAccountDto } from './dto/update-account.dto';
 export class AccountService {
   model = new PrismaClient();
   async getAllUser() {
-    return await this.model.account.findMany()
+    return await this.model.account.findMany();
+    
   }
 
   async getUserByName(nameUser: string): Promise<account[]> {

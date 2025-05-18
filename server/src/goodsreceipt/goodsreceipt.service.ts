@@ -27,85 +27,91 @@ export class GoodsreceiptService {
     });
   }
   async createGoodsreceipt(dto: CreateGoodsreceipt, full_name: string) {
-    console.log('CreateGoodsreceipt', dto);
     let totalPrice = 0;
-    const supplier = await this.model.supplier.findUnique({
-      where: { supplier_id: dto.supplier_id },
-      select: { supplier_id: true },
-    });
-    if (!supplier) {
-      throw new BadRequestException(
-        `Nhà cung cấp với ID ${dto.supplier_id} không tồn tại.`,
-      );
-    }
-    const account = await this.model.account.findFirst({
-      where: { account_id: dto.account_id },
-      select: { account_id: true },
-    });
-    if (!account) {
-      throw new BadRequestException(`Tài khoản ${full_name} không tồn tại.`);
-    }
-
-    for (const detail of dto.goodsreceipt_detail) {
-      const product = await this.model.product.findUnique({
-        where: { product_id: detail.product_id },
-        select: { output_price: true, quantity: true, product_id: true },
+    // transaction để đảm bảo tính toàn vẹn dữ liệu ==> đảm bảo rằng tất cả các thao tác đều thành công hoặc không có thao tác nào được thực hiện
+    return await this.model.$transaction(async (tx) => {
+      const supplier = await tx.supplier.findUnique({
+        where: { supplier_id: dto.supplier_id },
+        select: { supplier_id: true },
       });
+      if (!supplier) {
+        throw new BadRequestException(
+          `Nhà cung cấp với ID ${dto.supplier_id} không tồn tại.`,
+        );
+      }
 
-      if (product) {
+      const account = await tx.account.findFirst({
+        where: { account_id: dto.account_id },
+        select: { account_id: true },
+      });
+      if (!account) {
+        throw new BadRequestException(`Tài khoản ${full_name} không tồn tại.`);
+      }
+
+      if (!dto.goodsreceipt_detail || dto.goodsreceipt_detail.length === 0) {
+        throw new BadRequestException(
+          `Chi tiết phiếu nhập hàng không được trống.`,
+        );
+      }
+
+      for (const detail of dto.goodsreceipt_detail) {
+        const product = await tx.product.findUnique({
+          where: { product_id: detail.product_id },
+          select: { output_price: true, quantity: true, product_id: true },
+        });
+
+        if (!product) {
+          throw new BadRequestException(
+            `Sản phẩm với ID ${detail.product_id} không tồn tại.`,
+          );
+        }
+
         if (detail.input_price > product.output_price) {
           throw new BadRequestException(
             `Giá nhập (${detail.input_price}) không được cao hơn giá bán (${product.output_price}) cho sản phẩm ID ${detail.product_id}.`,
           );
         }
+
+        totalPrice += detail.quantity * detail.input_price;
+
+        // Cập nhật giá nhập và số lượng sản phẩm
+        await tx.product.update({
+          where: { product_id: detail.product_id },
+          data: {
+            input_price: detail.input_price,
+            quantity: { increment: detail.quantity },
+          },
+        });
       }
 
-      totalPrice += detail.quantity * detail.input_price;
-    }
-
-    if (!dto.goodsreceipt_detail || dto.goodsreceipt_detail.length === 0) {
-      throw new BadRequestException(
-        `Chi tiết phiếu nhập hàng không được trống.`,
-      );
-    }
-
-    // Tạo phiếu nhập hàng
-    const goodsreceipt = await this.model.goodsreceipt.create({
-      data: {
-        goodsreceipt_name: dto.goodsreceipt_name,
-        date: dto.date,
-        total_price: totalPrice,
-        supplier: { connect: { supplier_id: supplier.supplier_id } },
-        account: { connect: { account_id: account.account_id } },
-        goodsreceipt_detail: {
-          create: dto.goodsreceipt_detail.map(
-            (detail: CreateGoodsreceiptDetail) => ({
-              product: { connect: { product_id: detail.product_id } },
-              quantity: detail.quantity,
-              input_price: detail.input_price,
-            }),
-          ),
-        },
-      },
-      include: {
-        goodsreceipt_detail: {
-          include: { product: true },
-        },
-        supplier: { select: { supplier_name: true } },
-      },
-    });
-
-    // Cập nhật số lượng sản phẩm
-    for (const detail of dto.goodsreceipt_detail) {
-      await this.model.product.update({
-        where: { product_id: detail.product_id },
+      // Tạo phiếu nhập hàng
+      const goodsreceipt = await tx.goodsreceipt.create({
         data: {
-          quantity: { increment: detail.quantity },
+          goodsreceipt_name: dto.goodsreceipt_name,
+          date: dto.date,
+          total_price: totalPrice,
+          supplier: { connect: { supplier_id: supplier.supplier_id } },
+          account: { connect: { account_id: account.account_id } },
+          goodsreceipt_detail: {
+            create: dto.goodsreceipt_detail.map(
+              (detail: CreateGoodsreceiptDetail) => ({
+                product: { connect: { product_id: detail.product_id } },
+                quantity: detail.quantity,
+                input_price: detail.input_price,
+              }),
+            ),
+          },
+        },
+        include: {
+          goodsreceipt_detail: {
+            include: { product: true },
+          },
+          supplier: { select: { supplier_name: true } },
         },
       });
-    }
 
-    return goodsreceipt;
+      return goodsreceipt;
+    });
   }
   // không dc sửa phiếu nhập ==> làm bị dư
   async updateGoodsreceipt(dto: UpdategoodReceipt, id: number) {
