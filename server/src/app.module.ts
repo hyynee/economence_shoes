@@ -16,9 +16,10 @@ import { GoodsreceiptModule } from './goodsreceipt/goodsreceipt.module';
 import { StatisticalModule } from './statistical/statistical.module';
 import { CategoryModule } from './category/category.module';
 import { BrandModule } from './brand/brand.module';
+import { ReviewsModule } from './reviews/reviews.module';
 
 @Module({
-  imports: [AuthModule, ConfigModule.forRoot({ isGlobal: true }), ProductsModule, AccountModule, CustomerModule, DiscountModule, CartModule, OrderModule, PaymentModule, SupplierModule, GoodsreceiptModule, StatisticalModule, CategoryModule, BrandModule],
+  imports: [AuthModule, ConfigModule.forRoot({ isGlobal: true }), ProductsModule, AccountModule, CustomerModule, DiscountModule, CartModule, OrderModule, PaymentModule, SupplierModule, GoodsreceiptModule, StatisticalModule, CategoryModule, BrandModule, ReviewsModule],
   controllers: [AppController],
   providers: [AppService, JwtStrategy],
 })

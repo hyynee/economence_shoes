@@ -34,6 +34,7 @@ const Add = ({ isOpen, onClose, onAdd }) => {
         phone_number: values.phoneNumber,
       };
       await onAdd(newSupplier);
+      formik.resetForm();
       onClose();
     }
   });

@@ -2,6 +2,7 @@ import { StarIcon } from "@heroicons/react/24/outline";
 import { motion } from "framer-motion";
 import React, { useEffect, useState } from 'react';
 import { NavLink } from "react-router-dom";
+import BestSellers from "../components/BestSellers/BestSellers";
 import Carousel from '../components/Carousel/Carousel';
 import FilterBar from '../components/FilterDialog/FilterBar';
 import FilterDialog from '../components/FilterDialog/FilterDialog';
@@ -74,6 +75,7 @@ const Home = () => {
           transition={{ duration: 0.6, ease: "easeOut" }}
           viewport={{ once: true, amount: 0.2 }}
         >
+          <BestSellers />
           <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
             {currentProducts.length > 0 ? (
               currentProducts.map((product) => (

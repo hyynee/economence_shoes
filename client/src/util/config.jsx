@@ -3,6 +3,7 @@ import { history } from "..";
 
 export const domain = 'http://localhost:8080'
 export const USERLOGIN = "userLogin";
+export const ADMINLOGIN = "adminLogin";
 export const http = axios.create({
     baseURL: domain,
     timeout: 30000,
@@ -11,10 +12,13 @@ export const http = axios.create({
 
 // api 
 http.interceptors.request.use((config) => {
-    config.headers = { ...config.headers }
-    let token = getStorageJSON(USERLOGIN)?.token;
-    
-    config.headers.Authorization = `Bearer ${token}`;
+    config.headers = { ...config.headers };
+    const userData = JSON.parse(localStorage.getItem(USERLOGIN));
+    const adminData = JSON.parse(localStorage.getItem(ADMINLOGIN));
+    const token = adminData?.token || userData?.token;
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
 });
 

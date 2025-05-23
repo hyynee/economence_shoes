@@ -1,13 +1,21 @@
 import { useFormik } from 'formik';
-import React from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import * as Yup from 'yup';
 import Loading from '../../../components/Loading/Loading';
-import useAdminAddGoods from '../../../customhooks/AdminHooks/useAdminAddGoods';
+import { getAllBrandActionAPI } from '../../../redux/brandReducer/brandReducer';
+import { getAllCategoriesApi } from '../../../redux/categoryReducer/categoryReducer';
 
 const AddProductModal = ({ isOpen, onClose, onAdd }) => {
+  const dispatch = useDispatch();
   const loading = useSelector((state) => state.productsReducer.loading);
-  const { arrSupplier } = useAdminAddGoods();
+  const { categories } = useSelector((state) => state.categoryReducer);
+  const { arrBrand } = useSelector((state) => state.brandReducer);
+  console.log(categories)
+  useEffect(() => {
+    dispatch(getAllCategoriesApi());
+    dispatch(getAllBrandActionAPI());
+  }, [dispatch]);
   const formik = useFormik({
     initialValues: {
       productId: '',
@@ -174,9 +182,11 @@ const AddProductModal = ({ isOpen, onClose, onAdd }) => {
               className="border border-gray-300 rounded-sm w-full h-10 px-2"
             >
               <option value={0}>Chọn danh mục</option>
-              <option value={1}>C1</option>
-              <option value={2}>C2</option>
-              <option value={3}>C3</option>
+              {categories.map((category) => (
+                <option key={category.category_id} value={category.category_id}>
+                  {category.category_name}
+                </option>
+              ))}
             </select>
             {formik.touched.categoryId && formik.errors.categoryId ? (
               <div className="text-red-500 text-sm">{formik.errors.categoryId}</div>
@@ -191,9 +201,11 @@ const AddProductModal = ({ isOpen, onClose, onAdd }) => {
               className="border border-gray-300 rounded-sm w-full h-10 px-2"
             >
               <option value={0}>Chọn thương hiệu</option>
-              <option value={1}>B1</option>
-              <option value={2}>B2</option>
-              <option value={3}>B3</option>
+              {arrBrand.map((brand) => (
+                <option key={brand.brand_id} value={brand.brand_id}>
+                  {brand.brand_name}
+                </option>
+              ))}
             </select>
             {formik.touched.brandId && formik.errors.brandId ? (
               <div className="text-red-500 text-sm">{formik.errors.brandId}</div>

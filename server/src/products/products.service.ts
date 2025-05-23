@@ -62,6 +62,15 @@ export class ProductsService {
       );
     }
     const bestSellingProduct = bestSellingProducts[0];
+    if (!bestSellingProducts || bestSellingProducts.length === 0) {
+      throw new HttpException(
+        {
+          statusCode: 404,
+          message: 'No best selling product found',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
     const product = products.find(
       (p) => p.product_id === bestSellingProduct.product_id,
     );
@@ -123,12 +132,36 @@ export class ProductsService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-
     return await this.model.product.create({
       data: prod,
     });
   }
 
+  // có áp dụng giảm giá nhập tay
+  // async themProduct(prod: CreateProductDto): Promise<product> {
+  //   const existingProduct = await this.model.product.findUnique({
+  //     where: { product_id: prod.product_id },
+  //   });
+
+  //   if (existingProduct) {
+  //     throw new HttpException(
+  //       {
+  //         statusCode: 500,
+  //         message: 'Product_ID đã tồn tại',
+  //       },
+  //       HttpStatus.INTERNAL_SERVER_ERROR,
+  //     );
+  //   }
+  //   const discountedPrice =
+  //     prod.output_price -
+  //     (prod.output_price * (prod.discount_percent || 0)) / 100;
+  //   return await this.model.product.create({
+  //     data: {
+  //       ...prod,
+  //       output_price: discountedPrice,
+  //     },
+  //   });
+  // }
   async findOne(id: number): Promise<product[]> {
     return await this.model.product.findMany({
       where: {

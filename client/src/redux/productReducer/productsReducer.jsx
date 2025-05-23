@@ -52,7 +52,6 @@ export const AdminAddProdActionApi = (newProduct) => {
         dispatch(setLoading(true));
         try {
             const result = await http.post('/products/themSanPham', newProduct);
-            console.log("API Result:", result.data);
             const action = AdminAddProdAction(result.data);
             dispatch(action);
             return result.data;
@@ -102,3 +101,4 @@ export const searchProductActionAPI = (nameProd) => {
         }
     }
 }
+

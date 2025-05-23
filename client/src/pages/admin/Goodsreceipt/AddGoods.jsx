@@ -302,7 +302,6 @@ const AddGoods = ({ isOpen, onClose, onAdd }) => {
                                 </div>
                                 <div className="space-y-3 max-h-[300px] overflow-y-auto p-1">
                                     {formik.values.goodsreceipt_detail.map((detail, index) => {
-                                        console.log(`Detail #${index + 1} before render:`, detail);
                                         return (
                                             <div key={index} className="border rounded-lg p-3 bg-gray-50">
                                                 <div className="flex justify-between items-center mb-2">

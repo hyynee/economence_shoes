@@ -18,6 +18,7 @@ model account {
   goodsreceipt goodsreceipt[]
   order        order[]
   cart         cart[]
+  reviews      reviews[]
   invoices     Invoice[]
 
   @@index([role_id], map: "role_id_idx")
@@ -181,6 +182,7 @@ model product {
   warrantydetail      warrantydetail[]
   order_items         order_item[]
   cart                cart[]
+  reviews             reviews[]
 
   supplier_id Int?
   supplier    supplier? @relation(fields: [supplier_id], references: [supplier_id], onDelete: Cascade)
@@ -250,6 +252,23 @@ model warrantydetail {
   product product @relation(fields: [product_id], references: [product_id], onDelete: Cascade, map: "fk_warrantydetail_product_id")
 
   @@index([product_id])
+}
+
+model reviews {
+  review_id  Int      @id @default(autoincrement())
+  product_id Int
+  account_id Int
+  rating     Int
+  comment    String   @db.VarChar(255)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  product product @relation(fields: [product_id], references: [product_id], onDelete: Cascade, map: "fk_reviews_product_id")
+  account account @relation(fields: [account_id], references: [account_id], onDelete: Cascade, map: "fk_reviews_account_id")
+
+  @@unique([account_id, product_id])
+  @@index([product_id])
+  @@index([account_id])
 }
 
 enum InvoiceStatus {

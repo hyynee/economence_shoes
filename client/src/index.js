@@ -12,7 +12,6 @@ import ToastifyProvider from './util/ToastifyProvider';
 // User
 import NotFound from './components/404NotFound/NotFound';
 import Detail from './components/Detail/Detail';
-import PrivateRoute from './components/PrivateRoute/PrivateRoute';
 import Services from './components/Service/Services';
 import TableCart from './components/TableCart/TableCart';
 import Work from './components/Work/Work';
@@ -27,7 +26,10 @@ import HomeTemplate from './template/HomeTemplate';
 // Admin
 import MyOrders from './components/Order/MyOrders';
 import OrderDetail from './components/Order/OrderDetail';
+import AdminPrivateRoute from './components/PrivateRoute/PrivateRoute';
 import ScrollToTop from './customhooks/useScrollToTop';
+import Brand from './pages/admin/Brand/Brand';
+import Category from './pages/admin/Category/Category';
 import Customer from './pages/admin/Customer/Customer';
 import Goodsreceipt from './pages/admin/Goodsreceipt/Goodsreceipt';
 import Order from './pages/admin/Order/Order';
@@ -64,9 +66,11 @@ const App = () => {
                 <Route path='reset-password' element={<ResetPassword />} />
               </Route>
               {/* Admin */}
-              <Route path='admin' element={<PrivateRoute />}>
+              <Route path='admin' element={<AdminPrivateRoute />}>
                 <Route index element={<Overview />} />
                 <Route path='product' element={<Products />} />
+                <Route path='category' element={<Category />} />
+                <Route path='brand' element={<Brand />} />
                 <Route path='orders' element={<Order />} />
                 <Route path='customers' element={<Customer />} />
                 <Route path='supplier' element={<Supplier />} />

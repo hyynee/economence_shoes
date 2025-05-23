@@ -7,7 +7,7 @@ import { FaUserGear } from "react-icons/fa6";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
 import { getAllProdActionApi, searchProductActionAPI } from "../../redux/productReducer/productsReducer";
-import { loginAction } from "../../redux/userReducer/userReducer";
+import { loginUser } from "../../redux/userReducer/userReducer";
 import { clearStorageJSON, USERLOGIN } from "../../util/config";
 const MobileNavbar = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -85,7 +85,7 @@ const MobileNavbar = () => {
                                     className="text-sm text-white border-2 w-full hover:text-slate-600 bg-black p-2"
                                     onClick={() => {
                                         clearStorageJSON(USERLOGIN);
-                                        dispatch(loginAction({}));
+                                        dispatch(loginUser({}));
                                         window.location.reload();
                                     }}
                                 >

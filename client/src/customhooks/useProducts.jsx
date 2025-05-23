@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addProductToCartActionApi } from '../redux/cartReducer/cartReducer';
 import { getAllProdActionApi } from '../redux/productReducer/productsReducer';
+import { http } from '../util/config';
 
 const useProducts = () => {
     const dispatch = useDispatch();
@@ -13,12 +14,23 @@ const useProducts = () => {
     const [minPrice, setMinPrice] = useState(0);
     const [maxPrice, setMaxPrice] = useState(99999);
     const [sortOrder, setSortOrder] = useState('');
+    const [bestSellers, setBestSellers] = useState([]);
     const [open, setOpen] = useState(false);
 
     useEffect(() => {
         dispatch(getAllProdActionApi());
     }, [dispatch]);
-
+    useEffect(() => {
+        const fetchBestSellers = async () => {
+            try {
+                const response = await http.get('/products/best-sellers');
+                setBestSellers(response.data);
+            } catch (error) {
+                console.error('Error fetching best sellers:', error);
+            }
+        };
+        fetchBestSellers();
+    }, []);
     const brandsList = ["Nike", "Converse", "Van", "Adidas", "Jodan"];
 
     // Lọc nâng cao
@@ -62,6 +74,7 @@ const useProducts = () => {
         setSelectedFilter,
         open,
         resetFilters,
+        bestSellers,
         brandsList,
         setFilterKey,
         setSelectedBrands,

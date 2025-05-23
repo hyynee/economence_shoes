@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getItemsActionApi } from '../redux/cartReducer/cartReducer';
 import { getAllProdActionApi, searchProductActionAPI } from '../redux/productReducer/productsReducer';
-import { loginAction } from '../redux/userReducer/userReducer';
+import { logoutUser } from '../redux/userReducer/userReducer';
 import { clearStorageJSON, USERLOGIN } from '../util/config';
 
 const useNavbar = () => {
@@ -13,14 +13,15 @@ const useNavbar = () => {
     const navigate = useNavigate();
     const { userLogin } = useSelector(state => state.userReducer);
     const cart = useSelector(state => state.cartReducer);
-    const isAdmin = userLogin.role_id === "1";
+    const isAdmin = userLogin?.role_id === "1";
     const [searchProd, setSearchProd] = useState("");
 
+
     useEffect(() => {
-        if (userLogin.token) {
+        if (userLogin?.token && userLogin?.role_id !== "1") {
             dispatch(getItemsActionApi());
         }
-    }, [userLogin?.token, cart?.cartItems?.length, dispatch]);
+    }, [userLogin?.token, userLogin?.role_id, cart?.cartItems?.length, dispatch]);
 
     const handleSearch = useCallback(debounce((value) => {
         if (value.trim() !== "") {
@@ -35,9 +36,10 @@ const useNavbar = () => {
 
     const handleLogout = () => {
         clearStorageJSON(USERLOGIN);
-        dispatch(loginAction({}));
+        dispatch(logoutUser());
         navigate("/");
     };
+
 
     return {
         location,

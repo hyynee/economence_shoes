@@ -11,6 +11,24 @@ export const DASHBOARD_SIDEBAR_LINKS = [
         icon: <HiOutlineViewGrid />
     },
     {
+        key: 'brand',
+        label: 'Brand',
+        path: '/admin/brand',
+        icon: <HiOutlineViewGrid />
+    },
+    {
+        key: 'category',
+        label: 'Category',
+        path: '/admin/category',
+        icon: <HiOutlineViewGrid />
+    },
+    {
+        key: 'customers',
+        label: 'Customers',
+        path: '/admin/customers',
+        icon: <HiOutlineUsers />
+    },
+    {
         key: 'products',
         label: 'Products',
         path: '/admin/product',
@@ -22,12 +40,7 @@ export const DASHBOARD_SIDEBAR_LINKS = [
         path: '/admin/orders',
         icon: <HiOutlineShoppingCart />
     },
-    {
-        key: 'customers',
-        label: 'Customers',
-        path: '/admin/customers',
-        icon: <HiOutlineUsers />
-    },
+
     {
         key: 'supplier',
         label: 'Supplier',

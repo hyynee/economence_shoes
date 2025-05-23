@@ -1,23 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
 import { jwtDecode } from "jwt-decode";
 import { toast } from 'react-toastify';
 import { history } from '../..';
-import { getStorageJSON, http, USERLOGIN } from '../../util/config';
+import { ADMINLOGIN, getStorageJSON, http, saveStorageJSON, USERLOGIN } from '../../util/config';
 
-const initialStateUserLogin = () => {
-    let userLoginInit = {
-        email: '',
-        token: '',
-        role_id: '',
-    }
-    if (getStorageJSON(USERLOGIN)) {
-        userLoginInit = getStorageJSON(USERLOGIN)
-    }
-    return userLoginInit;
-}
+
 
 const initialState = {
-    userLogin: initialStateUserLogin(),
+    userLogin: getStorageJSON(USERLOGIN) || null,
+    adminLogin: getStorageJSON(ADMINLOGIN) || null,
     userProfile: {},
     isForgotPasswordSuccess: false,
     arrUser: [],
@@ -31,10 +23,15 @@ const userReducer = createSlice({
         setLoading: (state, action) => {
             state.loading = action.payload;
         },
-        loginAction: (state, action) => {
-            const userLogin = action.payload;
-            state.userLogin = userLogin;
+        loginUser: (state, action) => { state.userLogin = action.payload; },
+        loginAdmin: (state, action) => { state.adminLogin = action.payload; },
+        logoutUser: (state) => {
+            state.userLogin = null;
         },
+        logoutAdmin: (state) => {
+            state.adminLogin = null;
+        },
+
         signUpAdminAction: (state, action) => {
             state.arrUser.push(action.payload);
         },
@@ -64,23 +61,29 @@ const userReducer = createSlice({
     }
 });
 
-export const { setLoading, loginAction, getProfileAction, AdminGetAllUserAction, signUpAdminAction, AdminDeleteAccountAction, AdminUpdateAccountAction, changePasswordAction, forGotPasswordAction } = userReducer.actions
+export const { setLoading, loginAdmin, logoutUser, logoutAdmin, loginUser, getProfileAction, AdminGetAllUserAction, signUpAdminAction, AdminDeleteAccountAction, AdminUpdateAccountAction, changePasswordAction, forGotPasswordAction } = userReducer.actions
 
 export default userReducer.reducer
 
-export const loginActionApi = (userLogin) => {
+
+export const loginActionApi = (loginInfo) => {
     return async (dispatch) => {
         dispatch(setLoading(true));
         try {
-            const result = await http.post('/auth/login', userLogin);
+            const result = await http.post('/auth/login', loginInfo);
             if (result.data.status === 200) {
                 const { token, email } = result.data;
                 const { role_id } = jwtDecode(token).data;
-                const userLoginData = { email, token, role_id };
-                localStorage.setItem('userLogin', JSON.stringify(userLoginData));
-                // saveStorageJSON(USERLOGIN, userLoginData);
-                dispatch(loginAction(userLoginData));
-                history.push(role_id === '1' ? '/admin' : '/');
+                const userData = { token, email, role_id };
+                if (role_id === '1') {
+                    localStorage.setItem(ADMINLOGIN, JSON.stringify(userData));
+                    dispatch(loginAdmin(userData));
+                    history.push('/admin');
+                } else {
+                    saveStorageJSON(USERLOGIN, userData);
+                    dispatch(loginUser(userData));
+                    history.push('/');
+                }
                 toast.success("Login successful");
             } else {
                 toast.error("Login failed");
@@ -115,21 +118,21 @@ export const signUpActionApi = (userLogin) => {
 };
 export const getProfileActionApi = () => {
     return async (dispatch, getState) => {
-        const token = getState().userReducer.userLogin.token
+        const { userLogin } = getState().userReducer;
+        const token = userLogin?.token;
         try {
-            const result = await http.get('/account/currentUser', {}, {
+            const result = await axios.get('http://localhost:8080/account/currentUser', {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             });
-            const action = getProfileAction(result.data);
-            dispatch(action);
+            dispatch(getProfileAction(result.data));
         } catch (err) {
-            console.log("err", err.response?.data.message)
+            console.log("err", err.response?.data?.message);
         }
-    }
+    };
+};
 
-}
 export const changePasswordActionAPI = (data) => {
     return async (dispatch, getState) => {
         dispatch(setLoading(true));
