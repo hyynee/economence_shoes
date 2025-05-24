@@ -137,10 +137,11 @@ export const changePasswordActionAPI = (data) => {
     return async (dispatch, getState) => {
         dispatch(setLoading(true));
         try {
-            const token = getState().userReducer.userLogin?.token;
+            const { userLogin } = getState().userReducer;
+            const token = userLogin?.token;
+            console.log("token", token);
             if (!token) throw new Error("Bạn chưa đăng nhập!");
-
-            const result = await http.post(`/auth/changePassword`, data, {
+            const result = await axios.post(`http://localhost:8080/auth/changePassword`, data, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             dispatch(changePasswordAction(result.data));

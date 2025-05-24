@@ -36,6 +36,8 @@ const productsReducer = createSlice({
 export const { setLoading, getAllProdAction, AdminAddProdAction, AdminDeleteProdAction, AdminUpdateProdAction } = productsReducer.actions
 export default productsReducer.reducer
 
+
+// admin
 export const getAllProdActionApi = () => {
     return async (dispatch) => {
         try {

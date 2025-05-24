@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
 import { toast } from 'react-toastify';
-import { getStorageJSON, http } from '../../util/config';
+import { http } from '../../util/config';
 const initialState = {
     arrOrder: [],
 }
@@ -30,6 +31,8 @@ export const { getAllOrderAction, updateOrderAction, getOrderUser, getTotalProfi
 
 export default orderReducer.reducer
 
+
+// admin
 export const getAllOrderActionApi = () => {
     return async (dispatch) => {
         try {
@@ -42,6 +45,7 @@ export const getAllOrderActionApi = () => {
     }
 }
 
+// admin
 export const updateOrderStatusApi = (id, newStatus) => {
     return async (dispatch) => {
         try {
@@ -58,14 +62,17 @@ export const updateOrderStatusApi = (id, newStatus) => {
 };
 
 export const getOrderUserApi = () => {
-    return async (dispatch) => {
-        const token = getStorageJSON('token');
+    return async (dispatch, getState) => {
+        const { userLogin } = getState().userReducer;
+        const token = userLogin?.token;
         if (!token) {
             toast.error("Please log in to see items of orders.");
             return;
         }
         try {
-            const reslut = await http.get(`/order/getOrderWithUser`);
+            const reslut = await axios.get(`http://localhost:8080/order/getOrderWithUser`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
             const action = getOrderUser(reslut.data);
             dispatch(action);
         } catch (err) {

@@ -10,7 +10,7 @@ export const http = axios.create({
 })
 
 
-// api 
+// api admin
 http.interceptors.request.use((config) => {
     config.headers = { ...config.headers };
     const userData = JSON.parse(localStorage.getItem(USERLOGIN));
@@ -28,9 +28,7 @@ http.interceptors.response.use((res) => {
     if (err.response?.status === 401) {
         history.push('/login')
     }
-}
-
-)
+});
 
 // cau hinh localStorage
 export const { saveStorageJSON, getStorageJSON, clearStorageJSON } = {

@@ -85,6 +85,8 @@ export class AuthService {
       },
     });
     console.log('userID', CurrentUser.data.account_id);
+    console.log('oldPassword', oldPassword);
+    console.log('newPassword', newPassword);
     if (!user) {
       throw new NotFoundException('User not found');
     }

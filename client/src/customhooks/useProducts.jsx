@@ -1,8 +1,8 @@
+import axios from 'axios';
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addProductToCartActionApi } from '../redux/cartReducer/cartReducer';
 import { getAllProdActionApi } from '../redux/productReducer/productsReducer';
-import { http } from '../util/config';
 
 const useProducts = () => {
     const dispatch = useDispatch();
@@ -23,7 +23,7 @@ const useProducts = () => {
     useEffect(() => {
         const fetchBestSellers = async () => {
             try {
-                const response = await http.get('/products/best-sellers');
+                const response = await axios.get('http://localhost:8080/products/best-sellers');
                 setBestSellers(response.data);
             } catch (error) {
                 console.error('Error fetching best sellers:', error);

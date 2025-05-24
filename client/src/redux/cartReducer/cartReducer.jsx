@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
 import { toast } from 'react-toastify';
 import { history } from '../..';
-import { getStorageJSON, http, USERLOGIN } from '../../util/config';
 
 const initialState = {
     cartItems: [],
@@ -45,15 +45,15 @@ export const { addToCartAction, getItemsAction, removeItemsAction, changeQuantit
 export default cartReducer.reducer
 
 export const getItemsActionApi = () => {
-    return async (dispatch) => {
+    return async (dispatch, getState) => {
         try {
-            const token = getStorageJSON(USERLOGIN)?.token;
-            console.log("token", token)
+            const { userLogin } = getState().userReducer;
+            const token = userLogin?.token;
             if (!token) {
                 toast.error("Please log in to see items in the cart.");
                 return;
             }
-            const reslut = await http.get('/cart/getAllItemsCart', {
+            const reslut = await axios.get('http://localhost:8080/cart/getAllItemsCart', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const action = getItemsAction(reslut.data);
@@ -66,14 +66,15 @@ export const getItemsActionApi = () => {
 
 // Async action to add a product to the cart
 export const addProductToCartActionApi = (productId, quantity = 1) => {
-    return async (dispatch) => {
+    return async (dispatch, getState) => {
         try {
-            const token = getStorageJSON('token');
+            const { userLogin } = getState().userReducer;
+            const token = userLogin?.token;
             if (!token) {
                 toast.error("Please log in to add items to the cart.");
                 return;
             }
-            const response = await http.post('/cart/addProductToCart', { product_id: productId, quantity }, {
+            const response = await axios.post('http://localhost:8080/cart/addProductToCart', { product_id: productId, quantity }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (response.status === 201) {
@@ -90,14 +91,15 @@ export const addProductToCartActionApi = (productId, quantity = 1) => {
 
 // Async action to remove a product from the cart
 export const removeProductFromCartActionApi = (productId) => {
-    return async (dispatch) => {
+    return async (dispatch, getState) => {
         try {
-            const token = getStorageJSON('token');
+            const { userLogin } = getState().userReducer;
+            const token = userLogin?.token;
             if (!token) {
                 toast.error("Please log in to remove items from the cart.");
                 return;
             }
-            const response = await http.delete(`/cart/delProductToCart`, {
+            const response = await axios.delete(`http://localhost:8080/cart/delProductToCart`, {
                 data: { product_id: productId },
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -115,14 +117,15 @@ export const removeProductFromCartActionApi = (productId) => {
 };
 // Async action to clear all products from the cart
 export const clearCartActionApi = () => {
-    return async (dispatch) => {
+    return async (dispatch, getState) => {
         try {
-            const token = getStorageJSON('token');
+            const { userLogin } = getState().userReducer;
+            const token = userLogin?.token;
             if (!token) {
                 toast.error("Please log in to clear items from the cart.");
                 return;
             }
-            const response = await http.delete('/cart/clearItemsFromCart', {
+            const response = await axios.delete('http://localhost:8080/cart/clearItemsFromCart', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (response.status === 201) {
@@ -137,14 +140,15 @@ export const clearCartActionApi = () => {
 };
 
 export const changeQuantityActionApi = (productId, action) => {
-    return async (dispatch) => {
+    return async (dispatch, getState) => {
         try {
-            const token = getStorageJSON('token');
+            const { userLogin } = getState().userReducer;
+            const token = userLogin?.token;
             if (!token) {
                 toast.error("Please log in to modify item quantity.");
                 return;
             }
-            const response = await http.post('/cart/changeQuantity', {
+            const response = await axios.post('http://localhost:8080/cart/changeQuantity', {
                 product_id: productId,
                 action
             }, {
@@ -162,16 +166,17 @@ export const changeQuantityActionApi = (productId, action) => {
 };
 
 export const createCheckoutSessionActionApi = (cartItems) => {
-    return async (dispatch) => {
+    return async (dispatch, getState) => {
         try {
-            const token = getStorageJSON('token');
+            const { userLogin } = getState().userReducer;
+            const token = userLogin?.token;
             console.log("tokenpayment", token)
             if (!token) {
                 toast.error("Please log in to proceed with payment.");
                 return;
             }
             // Gọi API tạo session thanh toán
-            const response = await http.post('/payments/create-checkout-session', cartItems, {
+            const response = await axios.post('http://localhost:8080/payments/create-checkout-session', cartItems, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             console.log("cartcehck", cartItems)

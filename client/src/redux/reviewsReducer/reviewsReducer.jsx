@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { http } from '../../util/config';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const initialState = {
     CommentByProductId: [],
@@ -23,9 +24,15 @@ export const { getCommentByProductId, addCommentByProductId } = reviewsReducer.a
 export default reviewsReducer.reducer
 
 export const getCommentByProductIdActionApi = (product_id) => {
-    return async (dispatch) => {
+    return async (dispatch, getState) => {
         try {
-            const response = await http.get(`/reviews/getAllCommentByProductId/${product_id}`);
+            const { userLogin } = getState().userReducer;
+            const token = userLogin?.token;
+            if (!token) {
+                toast.error("Please log in first.");
+                return;
+            }
+            const response = await axios.get(`http://localhost:8080/reviews/getAllCommentByProductId/${product_id}`);
             const action = getCommentByProductId(response.data);
             if (response.status === 200) {
                 dispatch(action);
@@ -39,9 +46,17 @@ export const getCommentByProductIdActionApi = (product_id) => {
 }
 
 export const addCommentByProductIdActionApi = (product_id, payload) => {
-    return async (dispatch) => {
+    return async (dispatch, getState) => {
         try {
-            const response = await http.post(`/reviews/createComment/${product_id}`, payload);
+            const { userLogin } = getState().userReducer;
+            const token = userLogin?.token;
+            if (!token) {
+                toast.error("Please log in first.");
+                return;
+            }
+            const response = await axios.post(`http://localhost:8080/reviews/createComment/${product_id}`, payload, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
             console.log('Response:', response);
             const action = addCommentByProductId(response.data);
             console.log('Action:', action);
