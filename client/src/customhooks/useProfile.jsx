@@ -30,6 +30,7 @@ const useProfile = () => {
         }
         return "";
     }, [oldPassword, newPassword, confirmPassword]);
+
     // ChangePassword
     const handleChangePassword = useCallback(async () => {
         const error = validatePassword();
@@ -38,11 +39,13 @@ const useProfile = () => {
             return;
         }
         try {
-            await dispatch(changePasswordActionAPI({ oldPassword, newPassword }));
-            resetValue();
+            const result = await dispatch(changePasswordActionAPI({ oldPassword, newPassword }));
+            if (result?.success) {
+                resetValue();
+            }
         } catch (error) {
             console.error("Lỗi đổi mật khẩu:", error);
-            setErrorMessage(error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại!");
+            setErrorMessage(error.message || "Có lỗi xảy ra, vui lòng thử lại!");
         }
     }, [dispatch, oldPassword, newPassword, validatePassword]);
 

@@ -7,8 +7,8 @@ import {
   DASHBOARD_SIDEBAR_BOTTOM_LINKS,
   DASHBOARD_SIDEBAR_LINKS,
 } from "../../../lib/navigation";
-import { logoutAdmin } from "../../../redux/userReducer/userReducer";
-import { ADMINLOGIN, clearStorageJSON } from "../../../util/config";
+import { clearSessions } from "../../../redux/userReducer/userReducer";
+import { sessionStorageUtils } from "../../../util/config";
 
 const linkClasses = "flex items-center gap-2 font-light px-2 py-2 hover:bg-white/60 hover:border-b-2";
 
@@ -50,8 +50,8 @@ const SideBar = ({ isOpen, onClose }) => {
             <NavLink
               className="text-xl items-center flex text-red-500"
               onClick={() => {
-                clearStorageJSON(ADMINLOGIN);
-                dispatch(logoutAdmin());
+                sessionStorageUtils.clearAllSessions();
+                dispatch(clearSessions());
                 window.location.reload();
               }}
             >

@@ -21,7 +21,7 @@ function classNames(...classes) {
 const Navbar = () => {
   const { location, cart, userLogin, isAdmin, searchProd, setSearchProd, handleLogout } = useNavbar();
   const renderLogin = () => {
-    if (userLogin.token) {
+    if (userLogin?.token) {
       return (
         <div className="flex items-center space-x-4">
           <button

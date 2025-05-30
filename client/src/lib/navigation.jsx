@@ -1,5 +1,4 @@
 
-import { CiShop } from "react-icons/ci";
 import { HiOutlineCog, HiOutlineShoppingCart, HiOutlineSupport, HiOutlineUsers, HiOutlineViewGrid } from "react-icons/hi";
 import { RiBillLine, RiHotelFill } from "react-icons/ri";
 
@@ -52,12 +51,6 @@ export const DASHBOARD_SIDEBAR_LINKS = [
         label: 'Goodsreceipt',
         path: '/admin/goodsreceipt',
         icon: <RiBillLine />
-    },
-    {
-        key: 'Shop',
-        label: 'Shop',
-        path: '/',
-        icon: <CiShop />
     },
 ]
 

@@ -7,14 +7,15 @@ import { FaUserGear } from "react-icons/fa6";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
 import { getAllProdActionApi, searchProductActionAPI } from "../../redux/productReducer/productsReducer";
-import { loginUser } from "../../redux/userReducer/userReducer";
-import { clearStorageJSON, USERLOGIN } from "../../util/config";
+import { clearSessions } from "../../redux/userReducer/userReducer";
+import { sessionStorageUtils } from "../../util/config";
+
 const MobileNavbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [searchProd, setSearchProd] = useState("");
     const dispatch = useDispatch();
-    const { userLogin } = useSelector((state) => state.userReducer);
-    const isAdmin = userLogin.role_id === "1";
+    const { activeSession } = useSelector((state) => state.userReducer);
+    const isAdmin = activeSession?.role_id === "1";
     const cart = useSelector((state) => state.cartReducer);
 
     // Xử lý tìm kiếm sản phẩm
@@ -68,7 +69,7 @@ const MobileNavbar = () => {
                         </div>
 
                         {/* Tài khoản người dùng */}
-                        {userLogin.token ? (
+                        {activeSession?.token ? (
                             <div className="flex flex-col items-center px-6 py-4 space-y-4">
                                 <NavLink to="profile" className="text-sm mt-2 hover:text-slate-600" onClick={() => setIsOpen(false)}>
                                     Account Settings
@@ -84,8 +85,8 @@ const MobileNavbar = () => {
                                 <button
                                     className="text-sm text-white border-2 w-full hover:text-slate-600 bg-black p-2"
                                     onClick={() => {
-                                        clearStorageJSON(USERLOGIN);
-                                        dispatch(loginUser({}));
+                                        sessionStorageUtils.clearAllSessions();
+                                        dispatch(clearSessions());
                                         window.location.reload();
                                     }}
                                 >

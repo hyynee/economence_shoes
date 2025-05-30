@@ -4,24 +4,23 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getItemsActionApi } from '../redux/cartReducer/cartReducer';
 import { getAllProdActionApi, searchProductActionAPI } from '../redux/productReducer/productsReducer';
-import { logoutUser } from '../redux/userReducer/userReducer';
-import { clearStorageJSON, USERLOGIN } from '../util/config';
+import { clearSessions } from '../redux/userReducer/userReducer';
+import { sessionStorageUtils } from '../util/config';
 
 const useNavbar = () => {
     const location = useLocation();
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { userLogin } = useSelector(state => state.userReducer);
+    const { activeSession } = useSelector(state => state.userReducer);
     const cart = useSelector(state => state.cartReducer);
-    const isAdmin = userLogin?.role_id === "1";
+    const isAdmin = activeSession?.role_id === "1";
     const [searchProd, setSearchProd] = useState("");
 
-
     useEffect(() => {
-        if (userLogin?.token && userLogin?.role_id !== "1") {
+        if (activeSession?.token && activeSession?.role_id !== "1") {
             dispatch(getItemsActionApi());
         }
-    }, [userLogin?.token, userLogin?.role_id, cart?.cartItems?.length, dispatch]);
+    }, [activeSession?.token, activeSession?.role_id, cart?.cartItems?.length, dispatch]);
 
     const handleSearch = useCallback(debounce((value) => {
         if (value.trim() !== "") {
@@ -35,16 +34,15 @@ const useNavbar = () => {
     }, [searchProd]);
 
     const handleLogout = () => {
-        clearStorageJSON(USERLOGIN);
-        dispatch(logoutUser());
+        sessionStorageUtils.clearAllSessions();
+        dispatch(clearSessions());
         navigate("/");
     };
-
 
     return {
         location,
         cart,
-        userLogin,
+        userLogin: activeSession,
         isAdmin,
         searchProd,
         setSearchProd,

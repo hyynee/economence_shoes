@@ -3,13 +3,11 @@ import axios from 'axios';
 import { jwtDecode } from "jwt-decode";
 import { toast } from 'react-toastify';
 import { history } from '../..';
-import { ADMINLOGIN, getStorageJSON, http, saveStorageJSON, USERLOGIN } from '../../util/config';
-
-
+import { http, sessionStorageUtils } from '../../util/config';
 
 const initialState = {
-    userLogin: getStorageJSON(USERLOGIN) || null,
-    adminLogin: getStorageJSON(ADMINLOGIN) || null,
+    activeSession: sessionStorageUtils.getActiveSession() || null,
+    allSessions: sessionStorageUtils.getAllSessions() || [],
     userProfile: {},
     isForgotPasswordSuccess: false,
     arrUser: [],
@@ -23,15 +21,32 @@ const userReducer = createSlice({
         setLoading: (state, action) => {
             state.loading = action.payload;
         },
-        loginUser: (state, action) => { state.userLogin = action.payload; },
-        loginAdmin: (state, action) => { state.adminLogin = action.payload; },
-        logoutUser: (state) => {
-            state.userLogin = null;
+        setActiveSession: (state, action) => {
+            state.activeSession = action.payload;
         },
-        logoutAdmin: (state) => {
-            state.adminLogin = null;
+        setAllSessions: (state, action) => {
+            state.allSessions = action.payload;
         },
-
+        addSession: (state, action) => {
+            state.allSessions.push(action.payload);
+            state.activeSession = action.payload;
+        },
+        removeSession: (state, action) => {
+            state.allSessions = state.allSessions.filter(session => session.id !== action.payload);
+            if (state.activeSession?.id === action.payload) {
+                state.activeSession = state.allSessions[0] || null;
+            }
+        },
+        switchSession: (state, action) => {
+            const session = state.allSessions.find(s => s.id === action.payload);
+            if (session) {
+                state.activeSession = session;
+            }
+        },
+        clearSessions: (state) => {
+            state.activeSession = null;
+            state.allSessions = [];
+        },
         signUpAdminAction: (state, action) => {
             state.arrUser.push(action.payload);
         },
@@ -42,8 +57,7 @@ const userReducer = createSlice({
             state.isForgotPasswordSuccess = action.payload;
         },
         getProfileAction: (state, action) => {
-            const userProfile = action.payload;
-            state.userProfile = userProfile;
+            state.userProfile = action.payload;
         },
         AdminGetAllUserAction: (state, action) => {
             state.arrUser = action.payload;
@@ -61,10 +75,24 @@ const userReducer = createSlice({
     }
 });
 
-export const { setLoading, loginAdmin, logoutUser, logoutAdmin, loginUser, getProfileAction, AdminGetAllUserAction, signUpAdminAction, AdminDeleteAccountAction, AdminUpdateAccountAction, changePasswordAction, forGotPasswordAction } = userReducer.actions
+export const {
+    setLoading,
+    setActiveSession,
+    setAllSessions,
+    addSession,
+    removeSession,
+    switchSession,
+    clearSessions,
+    signUpAdminAction,
+    changePasswordAction,
+    forGotPasswordAction,
+    getProfileAction,
+    AdminGetAllUserAction,
+    AdminDeleteAccountAction,
+    AdminUpdateAccountAction
+} = userReducer.actions;
 
-export default userReducer.reducer
-
+export default userReducer.reducer;
 
 export const loginActionApi = (loginInfo) => {
     return async (dispatch) => {
@@ -74,14 +102,19 @@ export const loginActionApi = (loginInfo) => {
             if (result.data.status === 200) {
                 const { token, email } = result.data;
                 const { role_id } = jwtDecode(token).data;
-                const userData = { token, email, role_id };
+                const sessionData = {
+                    token,
+                    email,
+                    role_id,
+                    isActive: true
+                };
+
+                sessionStorageUtils.saveSession(sessionData);
+                dispatch(addSession(sessionData));
+
                 if (role_id === '1') {
-                    localStorage.setItem(ADMINLOGIN, JSON.stringify(userData));
-                    dispatch(loginAdmin(userData));
                     history.push('/admin');
                 } else {
-                    saveStorageJSON(USERLOGIN, userData);
-                    dispatch(loginUser(userData));
                     history.push('/');
                 }
                 toast.success("Login successful");
@@ -95,6 +128,7 @@ export const loginActionApi = (loginInfo) => {
         }
     };
 };
+
 export const signUpActionApi = (userLogin) => {
     return async (dispatch) => {
         dispatch(setLoading(true));
@@ -116,10 +150,11 @@ export const signUpActionApi = (userLogin) => {
         }
     };
 };
+
 export const getProfileActionApi = () => {
     return async (dispatch, getState) => {
-        const { userLogin } = getState().userReducer;
-        const token = userLogin?.token;
+        const { activeSession } = getState().userReducer;
+        const token = activeSession?.token;
         try {
             const result = await axios.get('http://localhost:8080/account/currentUser', {
                 headers: {
@@ -129,6 +164,15 @@ export const getProfileActionApi = () => {
             dispatch(getProfileAction(result.data));
         } catch (err) {
             console.log("err", err.response?.data?.message);
+            // If unauthorized, try to switch to another session
+            const allSessions = sessionStorageUtils.getAllSessions();
+            const otherSession = allSessions.find(session => session.email !== activeSession?.email);
+            if (otherSession) {
+                sessionStorageUtils.switchSession(otherSession.email);
+                dispatch(setActiveSession(otherSession));
+                // Retry the request with the new session
+                dispatch(getProfileActionApi());
+            }
         }
     };
 };
@@ -137,27 +181,28 @@ export const changePasswordActionAPI = (data) => {
     return async (dispatch, getState) => {
         dispatch(setLoading(true));
         try {
-            const { userLogin } = getState().userReducer;
-            const token = userLogin?.token;
+            const { activeSession } = getState().userReducer;
+            const token = activeSession?.token;
             console.log("token", token);
-            if (!token) throw new Error("Bạn chưa đăng nhập!");
-            const result = await axios.post(`http://localhost:8080/auth/changePassword`, data, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            if (!token) {
+                throw new Error("Bạn chưa đăng nhập!");
+            }
+            const result = await http.post('/auth/changePassword', data);
             dispatch(changePasswordAction(result.data));
             toast.success("Đổi mật khẩu thành công");
+            return { success: true };
         } catch (err) {
             console.error("Lỗi API:", err.response?.status, err.response?.data);
             if (err.response?.status === 400) {
                 throw new Error("Mật khẩu cũ không đúng!");
             }
-            throw new Error("Có lỗi xảy ra, vui lòng thử lại!");
-        }
-        finally {
+            throw new Error(err.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại!");
+        } finally {
             dispatch(setLoading(false));
         }
     };
 };
+
 export const AdminGetAllUserActionAPI = () => {
     return async (dispatch) => {
         try {
@@ -183,6 +228,7 @@ export const AdminDeleteAccountActionAPI = (user_id) => {
         }
     }
 }
+
 export const AdminUpdateAccountActionAPI = (updatedAccount) => {
     return async (dispatch) => {
         try {
@@ -195,6 +241,7 @@ export const AdminUpdateAccountActionAPI = (updatedAccount) => {
         }
     }
 }
+
 export const ResetPasswordActionAPI = (token, newPassword) => {
     return async (dispatch) => {
         dispatch(setLoading(true));

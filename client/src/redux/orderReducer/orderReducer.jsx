@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { http } from '../../util/config';
+
 const initialState = {
     arrOrder: [],
 }
@@ -27,10 +28,9 @@ const orderReducer = createSlice({
     }
 });
 
-export const { getAllOrderAction, updateOrderAction, getOrderUser, getTotalProfitAction } = orderReducer.actions
+export const { getAllOrderAction, updateOrderAction, getOrderUser } = orderReducer.actions
 
 export default orderReducer.reducer
-
 
 // admin
 export const getAllOrderActionApi = () => {
@@ -63,8 +63,8 @@ export const updateOrderStatusApi = (id, newStatus) => {
 
 export const getOrderUserApi = () => {
     return async (dispatch, getState) => {
-        const { userLogin } = getState().userReducer;
-        const token = userLogin?.token;
+        const { activeSession } = getState().userReducer;
+        const token = activeSession?.token;
         if (!token) {
             toast.error("Please log in to see items of orders.");
             return;

@@ -47,8 +47,8 @@ export default cartReducer.reducer
 export const getItemsActionApi = () => {
     return async (dispatch, getState) => {
         try {
-            const { userLogin } = getState().userReducer;
-            const token = userLogin?.token;
+            const { activeSession } = getState().userReducer;
+            const token = activeSession?.token;
             if (!token) {
                 toast.error("Please log in to see items in the cart.");
                 return;
@@ -68,8 +68,8 @@ export const getItemsActionApi = () => {
 export const addProductToCartActionApi = (productId, quantity = 1) => {
     return async (dispatch, getState) => {
         try {
-            const { userLogin } = getState().userReducer;
-            const token = userLogin?.token;
+            const { activeSession } = getState().userReducer;
+            const token = activeSession?.token;
             if (!token) {
                 toast.error("Please log in to add items to the cart.");
                 return;
@@ -93,8 +93,8 @@ export const addProductToCartActionApi = (productId, quantity = 1) => {
 export const removeProductFromCartActionApi = (productId) => {
     return async (dispatch, getState) => {
         try {
-            const { userLogin } = getState().userReducer;
-            const token = userLogin?.token;
+            const { activeSession } = getState().userReducer;
+            const token = activeSession?.token;
             if (!token) {
                 toast.error("Please log in to remove items from the cart.");
                 return;
@@ -119,8 +119,9 @@ export const removeProductFromCartActionApi = (productId) => {
 export const clearCartActionApi = () => {
     return async (dispatch, getState) => {
         try {
-            const { userLogin } = getState().userReducer;
-            const token = userLogin?.token;
+            const { activeSession } = getState().userReducer;
+            const token = activeSession?.token;
+            console.log("token", token)
             if (!token) {
                 toast.error("Please log in to clear items from the cart.");
                 return;
@@ -142,8 +143,8 @@ export const clearCartActionApi = () => {
 export const changeQuantityActionApi = (productId, action) => {
     return async (dispatch, getState) => {
         try {
-            const { userLogin } = getState().userReducer;
-            const token = userLogin?.token;
+            const { activeSession } = getState().userReducer;
+            const token = activeSession?.token;
             if (!token) {
                 toast.error("Please log in to modify item quantity.");
                 return;
@@ -168,8 +169,8 @@ export const changeQuantityActionApi = (productId, action) => {
 export const createCheckoutSessionActionApi = (cartItems) => {
     return async (dispatch, getState) => {
         try {
-            const { userLogin } = getState().userReducer;
-            const token = userLogin?.token;
+            const { activeSession } = getState().userReducer;
+            const token = activeSession?.token;
             console.log("tokenpayment", token)
             if (!token) {
                 toast.error("Please log in to proceed with payment.");

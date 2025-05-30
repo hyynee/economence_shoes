@@ -26,8 +26,8 @@ export default reviewsReducer.reducer
 export const getCommentByProductIdActionApi = (product_id) => {
     return async (dispatch, getState) => {
         try {
-            const { userLogin } = getState().userReducer;
-            const token = userLogin?.token;
+            const { activeSession } = getState().userReducer;
+            const token = activeSession?.token;
             if (!token) {
                 toast.error("Please log in first.");
                 return;
@@ -48,8 +48,8 @@ export const getCommentByProductIdActionApi = (product_id) => {
 export const addCommentByProductIdActionApi = (product_id, payload) => {
     return async (dispatch, getState) => {
         try {
-            const { userLogin } = getState().userReducer;
-            const token = userLogin?.token;
+            const { activeSession } = getState().userReducer;
+            const token = activeSession?.token;
             if (!token) {
                 toast.error("Please log in first.");
                 return;
