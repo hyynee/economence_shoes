@@ -16,8 +16,6 @@ const Customer = () => {
     } = useAdminUsers();
 
     useEffect(() => {
-        console.log('Total users:', userData.length);
-        console.log('User data:', userData);
     }, [userData]);
 
     const paginationOptions = {

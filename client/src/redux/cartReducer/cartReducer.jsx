@@ -44,6 +44,34 @@ export const { addToCartAction, getItemsAction, removeItemsAction, changeQuantit
 
 export default cartReducer.reducer
 
+export const createCashPaymentActionApi = (cartItems, shippingInfo) => {
+    return async (dispatch, getState) => {
+        try {
+            const { activeSession } = getState().userReducer;
+            const token = activeSession?.token;
+            if (!token) {
+                toast.error("Please log in to proceed with payment.");
+                return;
+            }
+            const response = await axios.post('http://localhost:8080/payments/create-cash-payment', {
+                ...shippingInfo,
+                cartItems
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (response.status === 201) {
+                // Clear cart after successful payment
+                await dispatch(clearCartActionApi());
+                toast.success("Cash payment order created successfully!");
+                history.push('/my-orders');
+            }
+        } catch (error) {
+            console.error("Error creating cash payment:", error.response?.data.message);
+            toast.error("Failed to create cash payment order.");
+        }
+    };
+};
+
 export const getItemsActionApi = () => {
     return async (dispatch, getState) => {
         try {
@@ -187,7 +215,7 @@ export const createCheckoutSessionActionApi = (cartItems) => {
                 console.log("Payment URL:", paymentUrl);
                 dispatch(setPaymentUrl(paymentUrl));
                 toast.success("Redirecting to payment gateway...");
-                history.push(paymentUrl); // Chuyển hướng đến trang thanh toán Stripe paymentUrl;
+                history.push(paymentUrl); // Chuyển hướng đến trang thanh toán Stripe paymentUrl;
             }
         } catch (error) {
             console.error("Error creating payment session:", error.response?.data.message);

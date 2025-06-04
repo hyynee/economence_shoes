@@ -1,4 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpCode, Headers, Put, ParseIntPipe, BadRequestException } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Headers,
+  HttpCode,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { Req, Res } from '@nestjs/common/decorators';
 import { HttpStatus } from '@nestjs/common/enums';
 import { AuthGuard } from '@nestjs/passport';
@@ -7,27 +14,34 @@ import { CurrentUser } from 'src/account/decorator/currentUser.decorator';
 import Stripe from 'stripe';
 import { PaymentService } from './payment.service';
 
-
 @ApiTags('Payments')
 @Controller('payments')
 @ApiBearerAuth()
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
-  @UseGuards(AuthGuard("jwt"))
+  @UseGuards(AuthGuard('jwt'))
   @HttpCode(201)
   @Post('/create-checkout-session')
-  create( @CurrentUser() currentUser,@Body() createPaymentDto: any) {
+  create(@CurrentUser() currentUser, @Body() createPaymentDto: any) {
     const account_id = currentUser.data.account_id;
-    return this.paymentService.create(account_id,createPaymentDto);
+    return this.paymentService.create(account_id, createPaymentDto);
   }
-  
+
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(201)
+  @Post('/create-cash-payment')
+  createCashPayment(@CurrentUser() currentUser, @Body() createPaymentDto: any) {
+    const account_id = currentUser.data.account_id;
+    return this.paymentService.createCashPayment(account_id, createPaymentDto);
+  }
+
   @Post('/webhook')
   async handleWebhook(
     @Headers('stripe-signature') signature: string, // Lấy Stripe signature từ header
     @CurrentUser() currentUser,
-    @Req() req: any, 
-    @Res() res: any, 
+    @Req() req: any,
+    @Res() res: any,
   ) {
     let event: Stripe.Event;
 
@@ -36,7 +50,9 @@ export class PaymentController {
       event = this.paymentService.verifyWebhook(req.body, signature);
     } catch (err) {
       console.error('Webhook signature verification failed:', err.message);
-      return res.status(HttpStatus.BAD_REQUEST).send(`Webhook Error: ${err.message}`);
+      return res
+        .status(HttpStatus.BAD_REQUEST)
+        .send(`Webhook Error: ${err.message}`);
     }
 
     switch (event.type) {

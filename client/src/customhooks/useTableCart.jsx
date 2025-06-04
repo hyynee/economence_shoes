@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-    changeQuantityActionApi, clearCartActionApi, createCheckoutSessionActionApi, getItemsActionApi,
+    changeQuantityActionApi, clearCartActionApi,
+    createCashPaymentActionApi,
+    createCheckoutSessionActionApi, getItemsActionApi,
     removeProductFromCartActionApi
 } from '../redux/cartReducer/cartReducer';
 
@@ -47,7 +49,7 @@ const useTableCart = () => {
         }
     }, [selectedProductId, dispatch]);
 
-    const handleClearCart = () => setIsClearCartModalOpen(true);
+    const handleClearCart = useCallback(() => setIsClearCartModalOpen(true), []);
 
     const handleConfirmClearCart = useCallback(async () => {
         try {
@@ -58,10 +60,14 @@ const useTableCart = () => {
         setIsClearCartModalOpen(false);
     }, [dispatch]);
 
-
     const makePayment = async (cartItems) => {
         dispatch(createCheckoutSessionActionApi(cartItems));
     };
+
+    const makeCashPayment = async (cartItems, shippingInfo) => {
+        dispatch(createCashPaymentActionApi(cartItems, shippingInfo));
+    };
+
     const subtotal = useMemo(() => {
         return cart.Items.reduce((total, item) => total + item.product.output_price * item.quantity, 0);
     }, [cart.Items]);
@@ -78,6 +84,7 @@ const useTableCart = () => {
         handleClearCart,
         handleConfirmClearCart,
         makePayment,
+        makeCashPayment,
         subtotal
     };
 };

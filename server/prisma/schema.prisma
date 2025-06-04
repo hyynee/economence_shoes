@@ -94,6 +94,7 @@ model order {
   total_price       Int
   delivery_status   String       @default("pending") @db.VarChar(45)
   payment_status    String       @db.VarChar(45)
+  payment_method    String       @default("stripe") @db.VarChar(45)
   account           account      @relation(fields: [account_id], references: [account_id], onDelete: Cascade, map: "order_account_id")
   order_items       order_item[]
   shipping_address  String

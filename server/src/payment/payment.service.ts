@@ -115,6 +115,110 @@ export class PaymentService {
     };
   }
 
+  async createCashPayment(accountId: number, createPaymentDto: any) {
+    try {
+      // Get user email
+      const email_user = await this.model.account.findUnique({
+        where: { account_id: accountId },
+      });
+
+      // Get cart items
+      const cartItems = await this.model.cart.findMany({
+        where: {
+          account_id: accountId,
+        },
+        include: {
+          product: true,
+        },
+      });
+
+      // Calculate total amount
+      const totalAmount = cartItems.reduce((total, item) => {
+        return total + item.product.output_price * item.quantity;
+      }, 0);
+
+      // Create order with cash payment status
+      const order = await this.model.order.create({
+        data: {
+          account_id: accountId,
+          total_price: totalAmount,
+          payment_status: 'pending', 
+          payment_method: 'cash',
+          shipping_address: createPaymentDto.shippingAddress,
+        },
+      });
+
+      // Create order items
+      const orderItems = await Promise.all(
+        cartItems.map(async (item) => {
+          return {
+            order_id: order.order_id,
+            product_id: item.product.product_id,
+            quantity: item.quantity,
+            price: item.product.output_price,
+          };
+        }),
+      );
+
+      // Save order items
+      await this.model.order_item.createMany({
+        data: orderItems,
+      });
+
+      // Clear cart
+      await this.model.cart.deleteMany({
+        where: {
+          account_id: accountId,
+        },
+      });
+
+      // Update product quantities
+      await Promise.all(
+        orderItems.map(async (item) => {
+          const product = await this.model.product.findFirst({
+            where: { product_id: item.product_id },
+          });
+          if (product) {
+            await this.model.product.update({
+              where: { product_id: item.product_id },
+              data: {
+                quantity: product.quantity - item.quantity,
+              },
+            });
+          }
+        }),
+      );
+
+      // Send confirmation email
+      if (email_user?.email) {
+        await this.sendEmailService.sendPaymentConfirmationEmail(
+          email_user.email,
+          totalAmount,
+          'USD',
+          `CASH-${order.order_id}`,
+          cartItems.map((item) => ({
+            name: item.product.product_name,
+            quantity: item.quantity,
+          })),
+          {
+            name: createPaymentDto.name,
+            phone: createPaymentDto.phone,
+            address: createPaymentDto.shippingAddress,
+          },
+        );
+      }
+
+      return {
+        status: 200,
+        message: 'Cash payment order created successfully',
+        orderId: order.order_id,
+      };
+    } catch (error) {
+      console.error('Error creating cash payment:', error);
+      throw error;
+    }
+  }
+
   verifyWebhook(rawBody: Buffer, signature: string): Stripe.Event {
     const endpointSecret = process.env.ENDPOINTSECRET;
     return this.stripe.webhooks.constructEvent(
